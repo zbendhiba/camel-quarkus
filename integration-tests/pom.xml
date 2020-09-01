@@ -75,6 +75,7 @@
         <module>compression</module>
         <module>consul</module>
         <module>controlbus</module>
+        <module>couchbase</module>
         <module>couchdb</module>
         <module>csv</module>
         <module>dataformat</module>
