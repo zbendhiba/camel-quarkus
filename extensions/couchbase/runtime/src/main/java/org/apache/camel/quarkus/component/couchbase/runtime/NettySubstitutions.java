@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.security.PrivateKey;
 import java.security.Provider;
 import java.security.cert.X509Certificate;
+import java.util.concurrent.ThreadFactory;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLEngine;
@@ -16,91 +17,65 @@ import com.couchbase.client.core.deps.io.netty.buffer.ByteBufAllocator;
 import com.couchbase.client.core.deps.io.netty.channel.Channel;
 import com.couchbase.client.core.deps.io.netty.channel.ChannelFuture;
 import com.couchbase.client.core.deps.io.netty.channel.DefaultChannelPromise;
+import com.couchbase.client.core.deps.io.netty.channel.EventLoopGroup;
+import com.couchbase.client.core.deps.io.netty.channel.nio.NioEventLoopGroup;
 import com.couchbase.client.core.deps.io.netty.handler.ssl.ApplicationProtocolConfig;
 import com.couchbase.client.core.deps.io.netty.handler.ssl.CipherSuiteFilter;
 import com.couchbase.client.core.deps.io.netty.handler.ssl.ClientAuth;
 import com.couchbase.client.core.deps.io.netty.handler.ssl.JdkAlpnApplicationProtocolNegotiator;
 import com.couchbase.client.core.deps.io.netty.handler.ssl.JdkApplicationProtocolNegotiator;
+import com.couchbase.client.core.deps.io.netty.util.concurrent.DefaultThreadFactory;
 import com.couchbase.client.core.deps.io.netty.util.concurrent.GlobalEventExecutor;
 import com.couchbase.client.core.deps.io.netty.util.internal.logging.InternalLoggerFactory;
 import com.couchbase.client.core.deps.io.netty.util.internal.logging.JdkLoggerFactory;
+import com.couchbase.client.core.env.OwnedSupplier;
 import com.oracle.svm.core.annotate.Alias;
+import com.oracle.svm.core.annotate.Delete;
 import com.oracle.svm.core.annotate.RecomputeFieldValue;
 import com.oracle.svm.core.annotate.Substitute;
 import com.oracle.svm.core.annotate.TargetClass;
 import com.oracle.svm.core.jdk.JDK8OrEarlier;
+import com.oracle.svm.graal.hosted.GraalFeature;
 
 final class NettySubstitutions {
 }
-/*
+
+@TargetClass(className = "com.couchbase.client.core.env.IoEnvironment.Builder", onlyWith = GraalFeature.IsEnabled.class)
+final class SubstituteIoEnvironmentBuilder {
+    @Substitute
+    public static final boolean nativeIoEnabled = false;
+}
+
 @TargetClass(className = "com.couchbase.client.core.env.IoEnvironment")
 final class SubstituteIoEnvironment {
-    @Alias
-    @RecomputeFieldValue(kind = RecomputeFieldValue.Kind.FieldOffset, name = "nativeIoEnabled")
-    private boolean nativeIoEnabled = false;
-}
-
-@TargetClass(className = "com.couchbase.client.core.deps.io.netty.util.internal.NativeLibraryLoader")
-final class Target_io_netty_util_internal_NativeLibraryLoader {
-    // This method can trick GraalVM into thinking that Classloader#defineClass is getting called
     @Substitute
-    private static Class<?> tryToLoadClass(final ClassLoader loader, final Class<?> helper)
-            throws ClassNotFoundException {
-        return Class.forName(helper.getName(), false, loader);
+    private static OwnedSupplier<EventLoopGroup> createEventLoopGroup(final boolean nativeIoEnabled, final int numThreads,
+            final String poolName) {
+        final ThreadFactory threadFactory = new DefaultThreadFactory(poolName, true);
+        return new OwnedSupplier<>(new NioEventLoopGroup(numThreads, threadFactory));
     }
 }
 
-@TargetClass(className = "com.couchbase.client.core.deps.io.netty.util.internal.PlatformDependent0", onlyWith = GraalFeature.IsEnabled.class)
-final class Target_io_netty_util_internal_PlatformDependent0 {
-    // This method can trick GraalVM into thinking that Classloader#defineClass is getting called
-    @Substitute
-    static boolean isExplicitNoUnsafe() {
-        return true;
-    }
+
+@TargetClass(className = "com.couchbase.client.core.deps.io.netty.channel.kqueue.KQueueEventArray")
+@Delete
+final class SubstituteKQueueEventArray {
 }
 
-@TargetClass(className = "org.apache.kudu.shaded.io.netty.util.internal.
-", onlyWith = GraalFeature.IsEnabled.class)
-final class Target_io_netty_util_internal_Native {
-
-    // This method can trick GraalVM into thinking that Classloader#defineClass is getting called
-    @Substitute
-    private static void loadNativeLibrary() {
-    }
-
-    @Substitute
-    static int sizeofKEvent() {
-        return 5;
-    }
-
-    @Substitute
-    static int offsetofKEventIdent() {
-        return 5;
-    }
-
-    @Substitute
-    static int offsetofKEventFlags() {
-        return 5;
-    }
-
-    @Substitute
-    static int offsetofKEventFFlags() {
-        return 5;
-    }
-
-    @Substitute
-    static int offsetofKEventFilter() {
-        return 5;
-    }
-
-    @Substitute
-    static int offsetofKeventData() {
-        return 5;
-    }
-
+@TargetClass(className = "com.couchbase.client.core.deps.io.netty.channel.kqueue.KQueue")
+@Delete
+final class SubstituteKQueue {
 }
-*/
 
+@TargetClass(className = "com.couchbase.client.core.deps.io.netty.channel.kqueue.KQueueEventLoop")
+@Delete
+final class SubstituteKQueueEventLoop {
+}
+
+@TargetClass(className = "com.couchbase.client.java.codec.JacksonJsonSerializer")
+@Delete
+final class SubstituteJacksonJsonSerializer {
+}
 /**
  * This substitution avoid having loggers added to the build.
  * Adapted from
@@ -120,12 +95,12 @@ final class Target_io_netty_handler_ssl_JdkSslServerContext {
 
     @Alias
     Target_io_netty_handler_ssl_JdkSslServerContext(Provider provider,
-                                                    X509Certificate[] trustCertCollection, TrustManagerFactory trustManagerFactory,
-                                                    X509Certificate[] keyCertChain, PrivateKey key, String keyPassword,
-                                                    KeyManagerFactory keyManagerFactory, Iterable<String> ciphers, CipherSuiteFilter cipherFilter,
-                                                    ApplicationProtocolConfig apn, long sessionCacheSize, long sessionTimeout,
-                                                    ClientAuth clientAuth, String[] protocols, boolean startTls,
-                                                    String keyStore)
+            X509Certificate[] trustCertCollection, TrustManagerFactory trustManagerFactory,
+            X509Certificate[] keyCertChain, PrivateKey key, String keyPassword,
+            KeyManagerFactory keyManagerFactory, Iterable<String> ciphers, CipherSuiteFilter cipherFilter,
+            ApplicationProtocolConfig apn, long sessionCacheSize, long sessionTimeout,
+            ClientAuth clientAuth, String[] protocols, boolean startTls,
+            String keyStore)
             throws SSLException {
     }
 }
@@ -135,10 +110,10 @@ final class Target_io_netty_handler_ssl_JdkSslClientContext {
 
     @Alias
     Target_io_netty_handler_ssl_JdkSslClientContext(Provider sslContextProvider, X509Certificate[] trustCertCollection,
-                                                    TrustManagerFactory trustManagerFactory, X509Certificate[] keyCertChain, PrivateKey key,
-                                                    String keyPassword, KeyManagerFactory keyManagerFactory, Iterable<String> ciphers,
-                                                    CipherSuiteFilter cipherFilter, ApplicationProtocolConfig apn, String[] protocols,
-                                                    long sessionCacheSize, long sessionTimeout, String keyStoreType)
+            TrustManagerFactory trustManagerFactory, X509Certificate[] keyCertChain, PrivateKey key,
+            String keyPassword, KeyManagerFactory keyManagerFactory, Iterable<String> ciphers,
+            CipherSuiteFilter cipherFilter, ApplicationProtocolConfig apn, String[] protocols,
+            long sessionCacheSize, long sessionTimeout, String keyStoreType)
             throws SSLException {
 
     }
@@ -165,13 +140,13 @@ final class Target_io_netty_handler_ssl_JettyAlpnSslEngine {
 
     @Substitute
     static Target_io_netty_handler_ssl_JettyAlpnSslEngine newClientEngine(SSLEngine engine,
-                                                                          JdkApplicationProtocolNegotiator applicationNegotiator) {
+            JdkApplicationProtocolNegotiator applicationNegotiator) {
         return null;
     }
 
     @Substitute
     static Target_io_netty_handler_ssl_JettyAlpnSslEngine newServerEngine(SSLEngine engine,
-                                                                          JdkApplicationProtocolNegotiator applicationNegotiator) {
+            JdkApplicationProtocolNegotiator applicationNegotiator) {
         return null;
     }
 }
@@ -180,13 +155,13 @@ final class Target_io_netty_handler_ssl_JettyAlpnSslEngine {
 final class Target_io_netty_handler_ssl_JdkAlpnApplicationProtocolNegotiator_AlpnWrapperJava8 {
     @Substitute
     public SSLEngine wrapSslEngine(SSLEngine engine, ByteBufAllocator alloc,
-                                   JdkApplicationProtocolNegotiator applicationNegotiator, boolean isServer) {
+            JdkApplicationProtocolNegotiator applicationNegotiator, boolean isServer) {
         if (Target_io_netty_handler_ssl_JettyAlpnSslEngine.isAvailable()) {
             return isServer
                     ? (SSLEngine) (Object) Target_io_netty_handler_ssl_JettyAlpnSslEngine.newServerEngine(engine,
-                    applicationNegotiator)
+                            applicationNegotiator)
                     : (SSLEngine) (Object) Target_io_netty_handler_ssl_JettyAlpnSslEngine.newClientEngine(engine,
-                    applicationNegotiator);
+                            applicationNegotiator);
         }
         throw new RuntimeException("Unable to wrap SSLEngine of type " + engine.getClass().getName());
     }
@@ -251,44 +226,44 @@ final class Target_io_netty_handler_ssl_JdkSslContext {
         }
 
         switch (config.protocol()) {
-            case NONE:
-                return (JdkApplicationProtocolNegotiator) (Object) Target_io_netty_handler_ssl_JdkDefaultApplicationProtocolNegotiator.INSTANCE;
-            case ALPN:
-                if (isServer) {
-                    // GRAAL RC9 bug: https://github.com/oracle/graal/issues/813
-                    //                switch(config.selectorFailureBehavior()) {
-                    //                case FATAL_ALERT:
-                    //                    return new JdkAlpnApplicationProtocolNegotiator(true, config.supportedProtocols());
-                    //                case NO_ADVERTISE:
-                    //                    return new JdkAlpnApplicationProtocolNegotiator(false, config.supportedProtocols());
-                    //                default:
-                    //                    throw new UnsupportedOperationException(new StringBuilder("JDK provider does not support ")
-                    //                    .append(config.selectorFailureBehavior()).append(" failure behavior").toString());
-                    //                }
-                    ApplicationProtocolConfig.SelectorFailureBehavior behavior = config.selectorFailureBehavior();
-                    if (behavior == ApplicationProtocolConfig.SelectorFailureBehavior.FATAL_ALERT)
-                        return new JdkAlpnApplicationProtocolNegotiator(true, config.supportedProtocols());
-                    else if (behavior == ApplicationProtocolConfig.SelectorFailureBehavior.NO_ADVERTISE)
-                        return new JdkAlpnApplicationProtocolNegotiator(false, config.supportedProtocols());
-                    else {
-                        throw new UnsupportedOperationException(new StringBuilder("JDK provider does not support ")
-                                .append(config.selectorFailureBehavior()).append(" failure behavior").toString());
-                    }
-                } else {
-                    switch (config.selectedListenerFailureBehavior()) {
-                        case ACCEPT:
-                            return new JdkAlpnApplicationProtocolNegotiator(false, config.supportedProtocols());
-                        case FATAL_ALERT:
-                            return new JdkAlpnApplicationProtocolNegotiator(true, config.supportedProtocols());
-                        default:
-                            throw new UnsupportedOperationException(new StringBuilder("JDK provider does not support ")
-                                    .append(config.selectedListenerFailureBehavior()).append(" failure behavior").toString());
-                    }
+        case NONE:
+            return (JdkApplicationProtocolNegotiator) (Object) Target_io_netty_handler_ssl_JdkDefaultApplicationProtocolNegotiator.INSTANCE;
+        case ALPN:
+            if (isServer) {
+                // GRAAL RC9 bug: https://github.com/oracle/graal/issues/813
+                //                switch(config.selectorFailureBehavior()) {
+                //                case FATAL_ALERT:
+                //                    return new JdkAlpnApplicationProtocolNegotiator(true, config.supportedProtocols());
+                //                case NO_ADVERTISE:
+                //                    return new JdkAlpnApplicationProtocolNegotiator(false, config.supportedProtocols());
+                //                default:
+                //                    throw new UnsupportedOperationException(new StringBuilder("JDK provider does not support ")
+                //                    .append(config.selectorFailureBehavior()).append(" failure behavior").toString());
+                //                }
+                ApplicationProtocolConfig.SelectorFailureBehavior behavior = config.selectorFailureBehavior();
+                if (behavior == ApplicationProtocolConfig.SelectorFailureBehavior.FATAL_ALERT)
+                    return new JdkAlpnApplicationProtocolNegotiator(true, config.supportedProtocols());
+                else if (behavior == ApplicationProtocolConfig.SelectorFailureBehavior.NO_ADVERTISE)
+                    return new JdkAlpnApplicationProtocolNegotiator(false, config.supportedProtocols());
+                else {
+                    throw new UnsupportedOperationException(new StringBuilder("JDK provider does not support ")
+                            .append(config.selectorFailureBehavior()).append(" failure behavior").toString());
                 }
-            default:
-                throw new UnsupportedOperationException(
-                        new StringBuilder("JDK provider does not support ").append(config.protocol()).append(" protocol")
-                                .toString());
+            } else {
+                switch (config.selectedListenerFailureBehavior()) {
+                case ACCEPT:
+                    return new JdkAlpnApplicationProtocolNegotiator(false, config.supportedProtocols());
+                case FATAL_ALERT:
+                    return new JdkAlpnApplicationProtocolNegotiator(true, config.supportedProtocols());
+                default:
+                    throw new UnsupportedOperationException(new StringBuilder("JDK provider does not support ")
+                            .append(config.selectedListenerFailureBehavior()).append(" failure behavior").toString());
+                }
+            }
+        default:
+            throw new UnsupportedOperationException(
+                    new StringBuilder("JDK provider does not support ").append(config.protocol()).append(" protocol")
+                            .toString());
         }
     }
 
@@ -452,7 +427,7 @@ final class Target_io_netty_buffer_EmptyByteBuf {
 
     @Substitute
     public ByteBuffer[] nioBuffers() {
-        return new ByteBuffer[]{EmptyByteBufStub.emptyByteBuffer()};
+        return new ByteBuffer[] { EmptyByteBufStub.emptyByteBuffer() };
     }
 
     @Substitute
