@@ -28,7 +28,10 @@ import com.couchbase.client.core.deps.io.netty.util.concurrent.DefaultThreadFact
 import com.couchbase.client.core.deps.io.netty.util.concurrent.GlobalEventExecutor;
 import com.couchbase.client.core.deps.io.netty.util.internal.logging.InternalLoggerFactory;
 import com.couchbase.client.core.deps.io.netty.util.internal.logging.JdkLoggerFactory;
+import com.couchbase.client.core.encryption.CryptoManager;
 import com.couchbase.client.core.env.OwnedSupplier;
+import com.couchbase.client.java.codec.DefaultJsonSerializer;
+import com.couchbase.client.java.codec.JsonSerializer;
 import com.oracle.svm.core.annotate.Alias;
 import com.oracle.svm.core.annotate.Delete;
 import com.oracle.svm.core.annotate.RecomputeFieldValue;
@@ -56,7 +59,6 @@ final class SubstituteIoEnvironment {
     }
 }
 
-
 @TargetClass(className = "com.couchbase.client.core.deps.io.netty.channel.kqueue.KQueueEventArray")
 @Delete
 final class SubstituteKQueueEventArray {
@@ -72,10 +74,14 @@ final class SubstituteKQueue {
 final class SubstituteKQueueEventLoop {
 }
 
-@TargetClass(className = "com.couchbase.client.java.codec.JacksonJsonSerializer")
-@Delete
-final class SubstituteJacksonJsonSerializer {
+@TargetClass(className = "com.couchbase.client.java.env.ClusterEnvironment")
+final class SubstituteClusterEnvironment {
+    @Substitute
+    private JsonSerializer newDefaultSerializer(CryptoManager cryptoManager) {
+        return DefaultJsonSerializer.create(cryptoManager);
+    }
 }
+
 /**
  * This substitution avoid having loggers added to the build.
  * Adapted from
@@ -396,7 +402,7 @@ final class Target_io_netty_channel_ChannelHandlerMask {
         return false;
     }
 }
-/*
+
 @TargetClass(className = "com.couchbase.client.core.deps.io.netty.util.internal.NativeLibraryLoader")
 final class Target_io_netty_util_internal_NativeLibraryLoader {
 
@@ -407,7 +413,7 @@ final class Target_io_netty_util_internal_NativeLibraryLoader {
         return Class.forName(helper.getName(), false, loader);
     }
 
-}*/
+}
 
 @TargetClass(className = "com.couchbase.client.core.deps.io.netty.buffer.EmptyByteBuf")
 final class Target_io_netty_buffer_EmptyByteBuf {
