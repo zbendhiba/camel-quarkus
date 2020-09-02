@@ -6,7 +6,7 @@
 :page-aliases: extensions/couchbase.adoc
 
 [.badges]
-[.badge-key]##Since Camel Quarkus##[.badge-version]##1.0.0## [.badge-key]##JVM##[.badge-supported]##supported## [.badge-key]##Native##[.badge-unsupported]##unsupported##
+[.badge-key]##Since Camel Quarkus##[.badge-version]##1.0.0## [.badge-key]##JVM##[.badge-supported]##supported## [.badge-key]##Native##[.badge-supported]##supported##
 
 Query Couchbase Views with a poll strategy and/or perform various operations against Couchbase databases.
 
