@@ -58,10 +58,6 @@ class CouchbaseProcessor {
             BuildProducer<NativeImageConfigBuildItem> nativeImageConfig,
             BuildProducer<ReflectiveClassBuildItem> reflectiveClass) {
 
-        /*   reflectiveClass.produce(new ReflectiveClassBuildItem(true, false,
-                "org.apache.kudu.tserver.Tserver$ResourceMetricsPB",
-                "org.apache.kudu.tserver.Tserver$ResourceMetricsPB$Builder"));*/
-
         reflectiveClass.produce(new ReflectiveClassBuildItem(false, false,
                 "com.couchbase.client.core.deps.io.netty.channel.socket.nio.NioSocketChannel"));
         reflectiveClass
@@ -79,16 +75,17 @@ class CouchbaseProcessor {
                         "com.couchbase.client.core.deps.io.netty.handler.ssl.JdkNpnApplicationProtocolNegotiator")
                 .addRuntimeInitializedClass("com.couchbase.client.core.deps.io.netty.handler.ssl.ConscryptAlpnSslEngine")
                 .addRuntimeInitializedClass("com.couchbase.client.core.deps.io.netty.handler.ssl.ReferenceCountedOpenSslEngine")
-                .addRuntimeInitializedClass(
-                        "com.couchbase.client.core.deps.io.netty.handler.ssl.ReferenceCountedOpenSslContext")
+                //.addRuntimeInitializedClass(
+                //       "com.couchbase.client.core.deps.io.netty.handler.ssl.ReferenceCountedOpenSslContext")
                 .addRuntimeInitializedClass(
                         "com.couchbase.client.core.deps.io.netty.handler.ssl.ReferenceCountedOpenSslClientContext")
                 .addRuntimeInitializedClass(
                         "com.couchbase.client.core.deps.io.netty.handler.ssl.util.ThreadLocalInsecureRandom")
                 .addRuntimeInitializedClass("com.couchbase.client.core.deps.io.netty.buffer.ByteBufUtil$HexUtil")
-                .addRuntimeInitializedClass("com.couchbase.client.core.deps.io.netty.buffer.PooledByteBufAllocator")
-                .addRuntimeInitializedClass("com.couchbase.client.core.deps.io.netty.buffer.ByteBufAllocator")
-                .addRuntimeInitializedClass("com.couchbase.client.core.deps.io.netty.buffer.ByteBufUtil")
+                /*   .addRuntimeInitializedClass("com.couchbase.client.core.deps.io.netty.buffer.PooledByteBufAllocator")
+                   .addRuntimeInitializedClass("com.couchbase.client.core.deps.io.netty.buffer.ByteBufAllocator")
+                   .addRuntimeInitializedClass("com.couchbase.client.core.deps.io.netty.buffer.ByteBufUtil")*/
+
                 .addNativeImageSystemProperty("io.netty.leakDetection.level", "DISABLED");
 
         try {
@@ -104,21 +101,9 @@ class CouchbaseProcessor {
             LOG.debug("Not registering Netty HTTP classes as they were not found");
         }
 
-        /*   try {
-            Class.forName("org.apache.kudu.shaded.io.netty.handler.codec.http2.Http2CodecUtil");
-            builder
-                    .addRuntimeInitializedClass("org.apache.kudu.shaded.io.netty.handler.codec.http2.Http2CodecUtil")
-                    .addRuntimeInitializedClass("org.apache.kudu.shaded.io.netty.handler.codec.http2.Http2ClientUpgradeCodec")
-                    .addRuntimeInitializedClass("org.apache.kudu.shaded.io.netty.handler.codec.http2.DefaultHttp2FrameWriter")
-                    .addRuntimeInitializedClass("org.apache.kudu.shaded.io.netty.handler.codec.http2.Http2ConnectionHandler");
-        } catch (ClassNotFoundException e) {
-            //ignore
-            LOG.debug("Not registering Netty HTTP2 classes as they were not found");
-        }*/
-
         try {
             Class.forName("com.couchbase.client.core.deps.io.netty.channel.unix.UnixChannel");
-            builder.addRuntimeInitializedClass("com.couchbase.client.core.deps.io.netty.channel.unix.unix.Errors")
+            builder.addRuntimeInitializedClass("com.couchbase.client.core.deps.io.netty.channel.unix.Errors")
                     .addRuntimeInitializedClass("com.couchbase.client.core.deps.io.netty.channel.unix.FileDescriptor")
                     .addRuntimeInitializedClass("com.couchbase.client.core.deps.io.netty.channel.unix.IovArray")
                     .addRuntimeInitializedClass("com.couchbase.client.core.deps.io.netty.channel.unix.Limits");
@@ -143,10 +128,18 @@ class CouchbaseProcessor {
             builder.addRuntimeInitializedClass("com.couchbase.client.core.deps.io.netty.channel.kqueue.KQueue")
                     .addRuntimeInitializedClass("com.couchbase.client.core.deps.io.netty.channel.kqueue.KQueueEventArray")
                     .addRuntimeInitializedClass("com.couchbase.client.core.deps.io.netty.channel.kqueue.KQueueEventLoop")
-                    .addRuntimeInitializedClass("com.couchbase.client.core.deps.io.netty.channel.kqueue.kqueue.Native");
+                    .addRuntimeInitializedClass("com.couchbase.client.core.deps.io.netty.channel.kqueue.Native");
         } catch (ClassNotFoundException e) {
             //ignore
             LOG.debug("Not registering Netty native kqueue classes as they were not found");
+        }
+
+        try {
+            Class.forName("com.couchbase.client.java.env.ClusterEnvironment");
+            builder.addRuntimeInitializedClass("com.couchbase.client.java.codec.JacksonJsonSerializer");
+        } catch (ClassNotFoundException e) {
+            //ignore
+            LOG.debug("Not registering couchbase cluster environment");
         }
 
         nativeImageConfig.produce(builder.build());
@@ -158,7 +151,7 @@ class CouchbaseProcessor {
     @BuildStep
     public RuntimeReinitializedClassBuildItem nettyReinitScheduledFutureTask() {
         return new RuntimeReinitializedClassBuildItem(
-                "org.apache.camel.quarkus.component.couchbase.graal.Holder_io_netty_util_concurrent_ScheduledFutureTask");
+                "com.couchbase.client.core.deps.io.netty.buffer.PooledByteBufAllocator");
     }
 
     /*
@@ -171,23 +164,23 @@ class CouchbaseProcessor {
                 new UnsafeAccessedFieldBuildItem("sun.nio.ch.SelectorImpl", "publicSelectedKeys"),
 
                 new UnsafeAccessedFieldBuildItem(
-                        "com.couchbase.client.core.deps.io.netty.util.internal.shaded.com.couchbase.client.core.deps.org.jctools.queues.MpscArrayQueueProducerIndexField",
+                        "com.couchbase.client.core.deps.org.jctools.queues.MpscArrayQueueProducerIndexField",
                         "producerIndex"),
                 new UnsafeAccessedFieldBuildItem(
-                        "com.couchbase.client.core.deps.io.netty.util.internal.shaded.com.couchbase.client.core.deps.org.jctools.queues.MpscArrayQueueProducerLimitField",
+                        "com.couchbase.client.core.deps.org.jctools.queues.MpscArrayQueueProducerLimitField",
                         "producerLimit"),
                 new UnsafeAccessedFieldBuildItem(
-                        "com.couchbase.client.core.deps.io.netty.util.internal.shaded.com.couchbase.client.core.deps.org.jctools.queues.MpscArrayQueueConsumerIndexField",
+                        "com.couchbase.client.core.deps.org.jctools.queues.MpscArrayQueueConsumerIndexField",
                         "consumerIndex"),
 
                 new UnsafeAccessedFieldBuildItem(
-                        "com.couchbase.client.core.deps.io.netty.util.internal.shaded.com.couchbase.client.core.deps.org.jctools.queues.BaseMpscLinkedArrayQueueProducerFields",
+                        "com.couchbase.client.core.deps.org.jctools.queues.BaseMpscLinkedArrayQueueProducerFields",
                         "producerIndex"),
                 new UnsafeAccessedFieldBuildItem(
-                        "com.couchbase.client.core.deps.io.netty.util.internal.shaded.com.couchbase.client.core.deps.org.jctools.queues.BaseMpscLinkedArrayQueueColdProducerFields",
+                        "com.couchbase.client.core.deps.org.jctools.queues.BaseMpscLinkedArrayQueueColdProducerFields",
                         "producerLimit"),
                 new UnsafeAccessedFieldBuildItem(
-                        "com.couchbase.client.core.deps.io.netty.util.internal.shaded.com.couchbase.client.core.deps.org.jctools.queues.BaseMpscLinkedArrayQueueConsumerFields",
+                        "com.couchbase.client.core.deps.org.jctools.queues.BaseMpscLinkedArrayQueueConsumerFields",
                         "consumerIndex"));
     }
 

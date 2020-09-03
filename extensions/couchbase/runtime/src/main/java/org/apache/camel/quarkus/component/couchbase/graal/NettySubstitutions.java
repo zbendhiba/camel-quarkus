@@ -4,8 +4,6 @@ import java.nio.ByteBuffer;
 import java.security.PrivateKey;
 import java.security.Provider;
 import java.security.cert.X509Certificate;
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingDeque;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLEngine;
@@ -14,7 +12,6 @@ import javax.net.ssl.TrustManagerFactory;
 
 import com.couchbase.client.core.deps.io.netty.bootstrap.AbstractBootstrapConfig;
 import com.couchbase.client.core.deps.io.netty.bootstrap.ChannelFactory;
-import com.couchbase.client.core.deps.io.netty.buffer.ByteBufAllocator;
 import com.couchbase.client.core.deps.io.netty.channel.Channel;
 import com.couchbase.client.core.deps.io.netty.channel.ChannelFuture;
 import com.couchbase.client.core.deps.io.netty.channel.DefaultChannelPromise;
@@ -23,11 +20,12 @@ import com.couchbase.client.core.deps.io.netty.handler.ssl.CipherSuiteFilter;
 import com.couchbase.client.core.deps.io.netty.handler.ssl.ClientAuth;
 import com.couchbase.client.core.deps.io.netty.handler.ssl.JdkAlpnApplicationProtocolNegotiator;
 import com.couchbase.client.core.deps.io.netty.handler.ssl.JdkApplicationProtocolNegotiator;
-import com.couchbase.client.core.deps.io.netty.handler.ssl.SslContext;
-import com.couchbase.client.core.deps.io.netty.handler.ssl.SslProvider;
 import com.couchbase.client.core.deps.io.netty.util.concurrent.GlobalEventExecutor;
 import com.couchbase.client.core.deps.io.netty.util.internal.logging.InternalLoggerFactory;
 import com.couchbase.client.core.deps.io.netty.util.internal.logging.JdkLoggerFactory;
+import com.couchbase.client.core.encryption.CryptoManager;
+import com.couchbase.client.java.codec.DefaultJsonSerializer;
+import com.couchbase.client.java.codec.JsonSerializer;
 import com.oracle.svm.core.annotate.Alias;
 import com.oracle.svm.core.annotate.RecomputeFieldValue;
 import com.oracle.svm.core.annotate.Substitute;
@@ -36,31 +34,6 @@ import com.oracle.svm.core.jdk.JDK8OrEarlier;
 
 class NettySubstitutions {
 }
-/*
-@TargetClass(className = "com.couchbase.client.core.env.IoEnvironment.Builder", onlyWith = GraalFeature.IsEnabled.class)
-final class SubstituteIoEnvironmentBuilder {
-    @Substitute
-    public static final boolean nativeIoEnabled = false;
-}
-
-@TargetClass(className = "com.couchbase.client.core.env.IoEnvironment")
-final class SubstituteIoEnvironment {
-    @Substitute
-    private static OwnedSupplier<EventLoopGroup> createEventLoopGroup(final boolean nativeIoEnabled, final int numThreads,
-            final String poolName) {
-        final ThreadFactory threadFactory = new DefaultThreadFactory(poolName, true);
-        return new OwnedSupplier<>(new NioEventLoopGroup(numThreads, threadFactory));
-    }
-}
-
-@TargetClass(className = "com.couchbase.client.java.env.ClusterEnvironment")
-final class SubstituteClusterEnvironment {
-    @Substitute
-    private JsonSerializer newDefaultSerializer(CryptoManager cryptoManager) {
-        return DefaultJsonSerializer.create(cryptoManager);
-    }
-}
-*/
 
 /**
  * This substitution avoid having loggers added to the build.
@@ -116,23 +89,24 @@ final class Target_io_netty_handler_ssl_SslHandler$SslEngineType {
         return JDK;
     }
 }
-
+/*
 @TargetClass(className = "org.apache.kudu.shaded.io.netty.handler.ssl.JdkAlpnApplicationProtocolNegotiator$AlpnWrapper", onlyWith = JDK8OrEarlier.class)
 final class Target_io_netty_handler_ssl_JdkAlpnApplicationProtocolNegotiator_AlpnWrapperJava8 {
     @Substitute
     public SSLEngine wrapSslEngine(SSLEngine engine, ByteBufAllocator alloc,
-            JdkApplicationProtocolNegotiator applicationNegotiator, boolean isServer) {
+                                   JdkApplicationProtocolNegotiator applicationNegotiator, boolean isServer) {
         if (Target_io_netty_handler_ssl_JettyAlpnSslEngine.isAvailable()) {
             return isServer
                     ? (SSLEngine) (Object) Target_io_netty_handler_ssl_JettyAlpnSslEngine.newServerEngine(engine,
-                            applicationNegotiator)
+                    applicationNegotiator)
                     : (SSLEngine) (Object) Target_io_netty_handler_ssl_JettyAlpnSslEngine.newClientEngine(engine,
-                            applicationNegotiator);
+                    applicationNegotiator);
         }
         throw new RuntimeException("Unable to wrap SSLEngine of type " + engine.getClass().getName());
     }
 
 }
+*/
 
 @TargetClass(className = "com.couchbase.client.core.deps.io.netty.handler.ssl.JettyAlpnSslEngine", onlyWith = JDK8OrEarlier.class)
 final class Target_io_netty_handler_ssl_JettyAlpnSslEngine {
@@ -154,17 +128,17 @@ final class Target_io_netty_handler_ssl_JettyAlpnSslEngine {
     }
 }
 
-@TargetClass(className = " com.couchbase.client.core.deps.io.netty.handler.ssl.SslContext")
+/*@TargetClass(className = " com.couchbase.client.core.deps.io.netty.handler.ssl.SslContext")
 final class Target_io_netty_handler_ssl_SslContext {
 
     @Substitute
     static SslContext newServerContextInternal(SslProvider provider,
-            Provider sslContextProvider,
-            X509Certificate[] trustCertCollection, TrustManagerFactory trustManagerFactory,
-            X509Certificate[] keyCertChain, PrivateKey key, String keyPassword, KeyManagerFactory keyManagerFactory,
-            Iterable<String> ciphers, CipherSuiteFilter cipherFilter, ApplicationProtocolConfig apn,
-            long sessionCacheSize, long sessionTimeout, ClientAuth clientAuth, String[] protocols, boolean startTls,
-            boolean enableOcsp, String keyStoreType)
+                                               Provider sslContextProvider,
+                                               X509Certificate[] trustCertCollection, TrustManagerFactory trustManagerFactory,
+                                               X509Certificate[] keyCertChain, PrivateKey key, String keyPassword, KeyManagerFactory keyManagerFactory,
+                                               Iterable<String> ciphers, CipherSuiteFilter cipherFilter, ApplicationProtocolConfig apn,
+                                               long sessionCacheSize, long sessionTimeout, ClientAuth clientAuth, String[] protocols, boolean startTls,
+                                               boolean enableOcsp, String keyStoreType)
             throws SSLException {
 
         if (enableOcsp) {
@@ -193,7 +167,8 @@ final class Target_io_netty_handler_ssl_SslContext {
                 sessionTimeout, keyStoreType);
     }
 
-}
+}*/
+
 
 @TargetClass(className = "com.couchbase.client.core.deps.io.netty.handler.ssl.JdkDefaultApplicationProtocolNegotiator")
 final class Target_io_netty_handler_ssl_JdkDefaultApplicationProtocolNegotiator {
@@ -313,7 +288,7 @@ final class Target_io_netty_bootstrap_AbstractBootstrap {
 
     }
 }
-
+/*
 @TargetClass(className = " com.couchbase.client.core.deps.io.netty.channel.nio.NioEventLoop")
 final class Target_io_netty_channel_nio_NioEventLoop {
 
@@ -321,7 +296,7 @@ final class Target_io_netty_channel_nio_NioEventLoop {
     private static Queue<Runnable> newTaskQueue0(int maxPendingTasks) {
         return new LinkedBlockingDeque<>();
     }
-}
+}*/
 
 @TargetClass(className = "com.couchbase.client.core.deps.io.netty.buffer.AbstractReferenceCountedByteBuf")
 final class Target_io_netty_buffer_AbstractReferenceCountedByteBuf {
@@ -435,4 +410,12 @@ final class Target_io_netty_buffer_EmptyByteBuf {
         }
     }
 
+}
+
+@TargetClass(className = "com.couchbase.client.java.env.ClusterEnvironment")
+final class SusbstituteClusterEnvironment {
+    @Substitute
+    private JsonSerializer newDefaultSerializer(CryptoManager cryptoManager) {
+        return DefaultJsonSerializer.create(cryptoManager);
+    }
 }
