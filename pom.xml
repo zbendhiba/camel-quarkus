@@ -71,6 +71,7 @@
         <nimbus-jose-jwt.version>4.41.1</nimbus-jose-jwt.version><!-- Mess in hdfs transitive deps -->
         <okhttp.version>3.14.6</okhttp.version><!-- keep in sync with okio -->
         <okio.version>1.17.2</okio.version><!-- keep in sync with okhttp -->
+        <optaplanner.version>7.43.1.Final</optaplanner.version>
         <quarkus.version>1.8.1.Final</quarkus.version>
         <quarkus-qpid-jms.version>0.18.0</quarkus-qpid-jms.version>
         <protobuf.version>3.11.1</protobuf.version>
@@ -97,6 +98,7 @@
         <istack-commons-runtime.version>3.0.10</istack-commons-runtime.version>
         <jakarta.mail.version>1.6.5</jakarta.mail.version>
         <mock-javamail.version>1.9</mock-javamail.version>
+        <mvel2.version>2.4.8.Final</mvel2.version>
         <pdfbox.version>2.0.21</pdfbox.version>
         <sshd.version>2.3.0</sshd.version>
         <stax2.version>4.2</stax2.version>

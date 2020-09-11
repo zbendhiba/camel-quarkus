@@ -128,6 +128,7 @@
         <module>olingo4</module>
         <module>openapi-java</module>
         <module>opentracing</module>
+        <module>optaplanner</module>
         <module>pdf</module>
         <module>platform-http</module>
         <module>platform-http-engine</module>

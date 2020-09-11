@@ -78,6 +78,7 @@ xml-json-olingo4:
   - olingo4
   - weather
   - geocoder
+  - optaplanner
 dozer-social:
   - dozer
   - telegram
