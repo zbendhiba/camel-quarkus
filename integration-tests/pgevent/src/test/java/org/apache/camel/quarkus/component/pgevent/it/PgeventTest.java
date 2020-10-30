@@ -46,4 +46,5 @@ class PgeventTest {
                 .statusCode(202)
                 .body(equalTo("Test Camel PGEvent with datasource"));
     }
+
 }

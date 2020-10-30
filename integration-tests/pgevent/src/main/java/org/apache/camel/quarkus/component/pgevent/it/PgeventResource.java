@@ -52,5 +52,4 @@ public class PgeventResource {
         LOG.infof("message received : %s", response);
         return Response.accepted(response).build();
     }
-
 }
