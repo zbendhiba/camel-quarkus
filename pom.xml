@@ -51,6 +51,7 @@
         <commons-collections.version>3.2.2</commons-collections.version><!-- used by hbase, should be pretty stable as commons-collections are not developed actively anymore -->
         <commons-lang.version>2.6</commons-lang.version><!-- used by hbase, should be pretty stable as commons-lang is not developed actively anymore -->
         <commons-math3.version>3.6.1</commons-math3.version><!-- Mess in the transitive dependencies of Spark and hbase-testing-util -->
+        <couchbase-core-io-version>2.0.10</couchbase-core-io-version><!-- Keep in sync with Camel -->
         <curator.version>4.3.0</curator.version><!-- Mess in the transitive dependencies of Spark, Zookeeper and other hadoop related components -->
         <debezium.version>1.3.0.Final</debezium.version>
         <derby.version>10.15.2.0</derby.version><!-- Spark -->
