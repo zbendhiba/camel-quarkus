@@ -2991,6 +2991,11 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.camel.quarkus</groupId>
+                <artifactId>camel-quarkus-couchbase-client</artifactId>
+                <version>${camel-quarkus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.camel.quarkus</groupId>
                 <artifactId>camel-quarkus-couchbase-deployment</artifactId>
                 <version>${camel-quarkus.version}</version>
             </dependency>
@@ -5586,6 +5591,16 @@
                 <groupId>com.datastax.oss.quarkus</groupId>
                 <artifactId>cassandra-quarkus-client-deployment</artifactId>
                 <version>${cassandra-quarkus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.couchbase.client</groupId>
+                <artifactId>core-io</artifactId>
+                <version>${couchbase-core-io-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-xml</artifactId>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.woodstox</groupId>

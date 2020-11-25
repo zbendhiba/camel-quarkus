@@ -85,6 +85,7 @@
         <module>cbor</module>
         <module>compression</module>
         <module>consul</module>
+        <module>couchbase</module>
         <module>couchdb</module>
         <module>crypto</module>
         <module>csimple</module>
