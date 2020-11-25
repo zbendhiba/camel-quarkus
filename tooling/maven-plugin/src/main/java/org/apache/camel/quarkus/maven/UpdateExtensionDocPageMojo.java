@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -284,8 +285,14 @@ public class UpdateExtensionDocPageMojo extends AbstractDocGeneratorMojo {
                 final String depArtifactId = dependency.getArtifactId();
                 if (cache.computeIfAbsent(
                         depArtifactId,
-                        aid -> detectNativeSsl(
-                                CqUtils.findExtensionDirectory(sourceTreeRoot, depArtifactId).resolve("deployment")))) {
+                        aid -> {
+                            Optional<Path> extensionDir = CqUtils.findExtensionDirectory(sourceTreeRoot, depArtifactId);
+
+                            return extensionDir.isPresent()
+                                    ? detectNativeSsl(extensionDir.get().resolve("deployment"))
+                                    : false;
+
+                        })) {
                     return true;
                 }
             }
