@@ -5,7 +5,7 @@
     <parent>
         <artifactId>camel-quarkus-couchbase-parent</artifactId>
         <groupId>org.apache.camel.quarkus</groupId>
-        <version>1.5.0-SNAPSHOT</version>
+        <version>1.8.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -14,8 +14,12 @@
     <name>Camel Quarkus :: Couchbase :: Client</name>
 
     <description>com.couchbase.client:core-io with netty package relocations reverted and netty classes stripped away
-        so that camel-quarkus-couchbase can use quarkus-netty as a replacement</description>
+        so that camel-quarkus-couchbase can use quarkus-netty as a replacement
+    </description>
 
+    <properties>
+
+    </properties>
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -30,8 +34,22 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.couchbase.client</groupId>
-            <artifactId>core-io</artifactId>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-couchbase</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-tcnative-boringssl-static</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.module</groupId>
+                    <artifactId>jackson-module-afterburner</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
@@ -50,7 +68,6 @@
                         <configuration>
                             <artifactSet>
                                 <excludes>
-                                    <exclude>com.stumbleupon:async</exclude>
                                     <exclude>org.slf4j:slf4j-api</exclude>
                                 </excludes>
                             </artifactSet>
@@ -59,13 +76,38 @@
                                     <pattern>com.couchbase.client.core.deps.io.netty</pattern>
                                     <shadedPattern>io.netty</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>com.couchbase.client.core.deps.com.fasterxml.jackson.module.afterburner</pattern>
+                                    <shadedPattern>org.apache.camel.quarkus.component.couchbase.runtime.graal</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.couchbase.client.core.deps.com.fasterxml.jackson</pattern>
+                                    <shadedPattern>com.fasterxml.jackson</shadedPattern>
+                                </relocation>
                             </relocations>
                             <filters>
                                 <filter>
                                     <artifact>com.couchbase.client:core-io</artifact>
                                     <excludes>
-                                        <exclude>META-INF/native-image.io.netty/**</exclude>
+                                        <exclude>META-INF/native-image/**</exclude>
+                                        <exclude>
+                                            META-INF/native/libcom_couchbase_client_core_deps_netty_transport_native_epoll_x86_64.so
+                                        </exclude>
+                                        <exclude>
+                                            META-INF/native/libcom_couchbase_client_core_deps_netty_transport_native_kqueue_x86_64.jnilib
+                                        </exclude>
+                                        <exclude>
+                                            META-INF/native/libcom_couchbase_client_core_deps_netty_tcnative_linux_x86_64.so
+                                        </exclude>
+                                        <exclude>
+                                            META-INF/native/libcom_couchbase_client_core_deps_netty_tcnative_osx_x86_64.jnilib
+                                        </exclude>
+                                        <exclude>
+                                            META-INF/native/com_couchbase_client_core_deps_netty_tcnative_windows_x86_64.dll
+                                        </exclude>
                                         <exclude>com/couchbase/client/core/deps/io/netty/**</exclude>
+                                        <exclude>com/couchbase/client/core/deps/com/fasterxml/jackson/module/afterburner/**</exclude>
+                                        <exclude>com/couchbase/client/core/deps/com/fasterxml/jackson/**</exclude>
                                     </excludes>
                                 </filter>
                             </filters>

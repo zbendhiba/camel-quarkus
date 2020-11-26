@@ -5594,13 +5594,8 @@
             </dependency>
             <dependency>
                 <groupId>com.couchbase.client</groupId>
-                <artifactId>core-io</artifactId>
-                <version>${couchbase-core-io-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.dataformat</groupId>
-                <artifactId>jackson-dataformat-xml</artifactId>
-                <version>${jackson.version}</version>
+                <artifactId>java-client</artifactId>
+                <version>3.1.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.woodstox</groupId>
