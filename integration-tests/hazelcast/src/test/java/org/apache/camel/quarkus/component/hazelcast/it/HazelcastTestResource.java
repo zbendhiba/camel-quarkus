@@ -18,28 +18,40 @@ package org.apache.camel.quarkus.component.hazelcast.it;
 
 import java.util.Map;
 
-import com.hazelcast.core.Hazelcast;
-import com.hazelcast.core.HazelcastInstance;
-import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
+import org.apache.camel.quarkus.testcontainers.ContainerResourceLifecycleManager;
+import org.apache.camel.util.CollectionHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.containers.wait.strategy.Wait;
 
-public class HazelcastTestResource implements QuarkusTestResourceLifecycleManager {
-    private volatile HazelcastInstance member;
-    private static volatile HazelcastInstance member2;
+public class HazelcastTestResource implements ContainerResourceLifecycleManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastTestResource.class);
+    private static final int HAZELCAST_PORT = 5701;
+    private static final int HAZELCAST_PORT2 = 5702;
+    private static final String HAZELCAST_IMAGE = "hazelcast/hazelcast:4.1.1";
+    private GenericContainer container;
+    private static GenericContainer container2;
 
     @Override
     public Map<String, String> start() {
-        member = Hazelcast.newHazelcastInstance();
-        return null;
+        container = createContainer(HAZELCAST_PORT);
+        container.start();
+        return CollectionHelper.mapOf(
+                "quarkus.hazelcast-client.cluster-members",
+                String.format("localhost:%s", container.getMappedPort(HAZELCAST_PORT)));
     }
 
     @Override
     public void stop() {
-        if (member != null) {
-            member.shutdown();
-        }
+        if (container != null) {
 
-        if (member2 != null) {
-            member.shutdown();
+            container.stop();
+        }
+        if (container2 != null) {
+
+            container2.stop();
         }
     }
 
@@ -47,7 +59,16 @@ public class HazelcastTestResource implements QuarkusTestResourceLifecycleManage
      * this is used to test new instance in the same cluster
      */
     public static void addMemberToCluster() {
-        member2 = Hazelcast.newHazelcastInstance();
+        container2 = createContainer(HAZELCAST_PORT2);
+        container2.start();
+    }
+
+    private static GenericContainer createContainer(int port) {
+        GenericContainer container = new GenericContainer(HAZELCAST_IMAGE)
+                .withExposedPorts(port)
+                .withLogConsumer(new Slf4jLogConsumer(LOGGER))
+                .waitingFor(Wait.forLogMessage(".*is STARTED.*", 1));
+        return container;
     }
 
 }
