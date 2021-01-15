@@ -114,6 +114,7 @@ dozer-social-azure:
 messaging-networking1:
   - activemq
   - amqp
+  - atlasmap
   - kafka
   - messaging
   - nats
