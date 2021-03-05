@@ -50,7 +50,15 @@ public class CouchbaseResource {
     @Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.TEXT_PLAIN)
     public boolean insert(@PathParam("id") String id, String msg) {
-        LOG.infof("inserting message %msg with default id %id");
+        LOG.infof("inserting message %msg with id %id");
         return producerTemplate.requestBodyAndHeader(connectionUri, msg, CouchbaseConstants.HEADER_ID, id, Boolean.class);
+    }
+
+    @PUT
+    @Produces(MediaType.TEXT_PLAIN)
+    @Consumes(MediaType.TEXT_PLAIN)
+    public boolean insertAutoIncrement(String msg) {
+        LOG.infof("inserting message %msg with auto-insert");
+        return producerTemplate.requestBody("direct:auto-insert", msg, Boolean.class);
     }
 }

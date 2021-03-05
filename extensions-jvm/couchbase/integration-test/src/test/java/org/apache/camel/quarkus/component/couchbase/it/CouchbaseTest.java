@@ -39,6 +39,14 @@ class CouchbaseTest {
                 .then()
                 .statusCode(200);
 
+        given()
+                .contentType(ContentType.TEXT)
+                .body("hello2")
+                .when()
+                .put()
+                .then()
+                .statusCode(200);
+
     }
 
 }
