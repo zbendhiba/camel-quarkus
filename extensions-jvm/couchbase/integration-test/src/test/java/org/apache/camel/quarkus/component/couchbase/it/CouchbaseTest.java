@@ -23,6 +23,7 @@ import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.CoreMatchers.equalTo;
 
 @QuarkusTest
 @TestHTTPEndpoint(CouchbaseResource.class)
@@ -30,14 +31,15 @@ import static io.restassured.RestAssured.given;
 class CouchbaseTest {
 
     @Test
-    void testInsert() {
+    void testCouchbase() {
         given()
                 .contentType(ContentType.TEXT)
                 .body("hello1")
                 .when()
                 .put("/id/id_1")
                 .then()
-                .statusCode(200);
+                .statusCode(200)
+                .body(equalTo("true"));
 
         given()
                 .contentType(ContentType.TEXT)
@@ -45,7 +47,24 @@ class CouchbaseTest {
                 .when()
                 .put()
                 .then()
-                .statusCode(200);
+                .statusCode(200)
+                .body(equalTo("true"));
+
+        // getting first message with id = id_1
+        given()
+                .when()
+                .get("/id_1")
+                .then()
+                .statusCode(200)
+                .body(equalTo("hello1")) ;
+
+        // getting second message with automatic id = 1000
+        given()
+                .when()
+                .get("/1000")
+                .then()
+                .statusCode(200)
+                .body(equalTo("hello2")) ;
 
     }
 

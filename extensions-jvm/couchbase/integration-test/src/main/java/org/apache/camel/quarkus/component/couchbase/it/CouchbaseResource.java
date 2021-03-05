@@ -24,16 +24,20 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.couchbase.client.java.kv.GetResult;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.couchbase.CouchbaseConstants;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
+import static org.apache.camel.component.couchbase.CouchbaseConstants.COUCHBASE_GET;
+
 @Path("/couchbase")
 @ApplicationScoped
+@Produces(MediaType.TEXT_PLAIN)
+@Consumes(MediaType.TEXT_PLAIN)
 public class CouchbaseResource {
 
     private static final Logger LOG = Logger.getLogger(CouchbaseResource.class);
@@ -47,18 +51,22 @@ public class CouchbaseResource {
 
     @PUT
     @Path("id/{id}")
-    @Produces(MediaType.TEXT_PLAIN)
-    @Consumes(MediaType.TEXT_PLAIN)
     public boolean insert(@PathParam("id") String id, String msg) {
         LOG.infof("inserting message %msg with id %id");
         return producerTemplate.requestBodyAndHeader(connectionUri, msg, CouchbaseConstants.HEADER_ID, id, Boolean.class);
     }
 
     @PUT
-    @Produces(MediaType.TEXT_PLAIN)
-    @Consumes(MediaType.TEXT_PLAIN)
     public boolean insertAutoIncrement(String msg) {
         LOG.infof("inserting message %msg with auto-insert");
         return producerTemplate.requestBody("direct:auto-insert", msg, Boolean.class);
+    }
+
+    @GET
+    @Path("{id}")
+    public String getById(@PathParam("id") String id) {
+        LOG.infof("Getting object with id : %s");
+        GetResult result = producerTemplate.requestBodyAndHeader(String.format("%s&operation=%s", connectionUri, COUCHBASE_GET), null, CouchbaseConstants.HEADER_ID, id, GetResult.class);
+        return result != null ? result.contentAs(String.class) : null;
     }
 }
