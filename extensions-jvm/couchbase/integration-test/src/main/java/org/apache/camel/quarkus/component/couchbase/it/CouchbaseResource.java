@@ -24,9 +24,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
-import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.couchbase.CouchbaseConstants;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -38,9 +36,6 @@ public class CouchbaseResource {
 
     private static final Logger LOG = Logger.getLogger(CouchbaseResource.class);
 
-    @ConfigProperty(name = "couchbase.connection.url", defaultValue = "couchbase:http://localhost:8091?bucket=testBucket")
-    String connectionUrl;
-
     @Inject
     ProducerTemplate producerTemplate;
 
@@ -48,8 +43,8 @@ public class CouchbaseResource {
     @Path("with/{msg}")
     @Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.TEXT_PLAIN)
-    public Response insert(@PathParam("msg") String msg) {
-        producerTemplate.sendBodyAndHeader(connectionUrl, msg, CouchbaseConstants.HEADER_ID, "SimpleDocument_1");
-        return Response.ok().build();
+    public boolean insert(@PathParam("msg") String msg) {
+        LOG.infof("inserting message with default id");
+        return producerTemplate.requestBody("direct:insert-simple-test", msg, Boolean.class);
     }
 }

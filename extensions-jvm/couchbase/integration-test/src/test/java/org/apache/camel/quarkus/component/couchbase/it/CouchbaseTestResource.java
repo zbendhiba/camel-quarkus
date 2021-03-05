@@ -46,7 +46,8 @@ public class CouchbaseTestResource implements ContainerResourceLifecycleManager 
 
         initBucket();
 
-        return CollectionHelper.mapOf("couchbase.connection.url", getConnectionUri());
+        return CollectionHelper.mapOf("couchbase.connection.uri", getConnectionUri(),
+                "couchbase.bucket.name", bucketName);
     }
 
     @Override
