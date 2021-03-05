@@ -20,9 +20,11 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.camel.ProducerTemplate;
@@ -36,15 +38,19 @@ public class CouchbaseResource {
 
     private static final Logger LOG = Logger.getLogger(CouchbaseResource.class);
 
+    @ConfigProperty(name = "couchbase.connection.uri")
+    String connectionUri;
+
+
     @Inject
     ProducerTemplate producerTemplate;
 
-    @GET
-    @Path("with/{msg}")
+    @PUT
+    @Path("id/{id}")
     @Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.TEXT_PLAIN)
-    public boolean insert(@PathParam("msg") String msg) {
-        LOG.infof("inserting message with default id");
-        return producerTemplate.requestBody("direct:insert-simple-test", msg, Boolean.class);
+    public boolean insert(@PathParam("id") String id, String msg) {
+        LOG.infof("inserting message %msg with default id %id");
+        return producerTemplate.requestBodyAndHeader(connectionUri, msg, CouchbaseConstants.HEADER_ID, id, Boolean.class);
     }
 }

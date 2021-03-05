@@ -19,6 +19,7 @@ package org.apache.camel.quarkus.component.couchbase.it;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
+import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
@@ -31,10 +32,13 @@ class CouchbaseTest {
     @Test
     void testInsert() {
         given()
+                .contentType(ContentType.TEXT)
+                .body("hello1")
                 .when()
-                .get("/with/hello")
+                .put("/id/id_1")
                 .then()
                 .statusCode(200);
+
     }
 
 }

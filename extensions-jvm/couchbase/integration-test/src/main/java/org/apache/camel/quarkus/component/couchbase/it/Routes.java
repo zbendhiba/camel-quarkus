@@ -15,12 +15,10 @@ public class Routes extends RouteBuilder {
     @ConfigProperty(name = "couchbase.bucket.name")
     String bucketName;
 
-
     @Override
     public void configure() throws Exception {
         // insert by giving an id
-        from("direct:insert-simple-test").setHeader(CouchbaseConstants.HEADER_ID, constant("SimpleDocument_1"))
-                .to(connectionUri);
+        from("direct:insert-simple-test").to(connectionUri);
 
         // insert with auto-insert ids
        from("direct:auto-insert")
