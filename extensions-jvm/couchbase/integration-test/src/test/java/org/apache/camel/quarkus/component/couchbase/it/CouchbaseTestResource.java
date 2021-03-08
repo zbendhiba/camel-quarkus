@@ -96,4 +96,3 @@ public class CouchbaseTestResource implements ContainerResourceLifecycleManager 
         cluster.bucket(bucketName).waitUntilReady(Duration.ofSeconds(30));
     }
 }
-

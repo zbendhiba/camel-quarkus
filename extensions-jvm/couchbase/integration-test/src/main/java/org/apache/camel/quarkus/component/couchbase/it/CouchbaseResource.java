@@ -16,31 +16,18 @@
  */
 package org.apache.camel.quarkus.component.couchbase.it;
 
-import java.util.Collections;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
-import com.couchbase.client.java.Bucket;
-import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.kv.GetResult;
-import com.couchbase.client.java.kv.MutationResult;
-import com.couchbase.client.java.manager.bucket.BucketSettings;
-import com.couchbase.client.java.manager.bucket.BucketType;
-import com.couchbase.client.java.manager.view.DesignDocument;
-import com.couchbase.client.java.manager.view.View;
-import com.couchbase.client.java.view.DesignDocumentNamespace;
-import io.quarkus.runtime.StartupEvent;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.couchbase.CouchbaseConstants;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -60,7 +47,6 @@ public class CouchbaseResource {
     @ConfigProperty(name = "couchbase.connection.uri")
     String connectionUri;
 
-
     @Inject
     ProducerTemplate producerTemplate;
 
@@ -74,14 +60,17 @@ public class CouchbaseResource {
     @PUT
     public boolean insertAutoIncrement(String msg) {
         LOG.infof("inserting message %msg with auto-insert");
-        return producerTemplate.requestBody(String.format("%s&autoStartIdForInserts=true&startingIdForInsertsFrom=1000", connectionUri), msg, Boolean.class);
+        return producerTemplate.requestBody(
+                String.format("%s&autoStartIdForInserts=true&startingIdForInsertsFrom=1000", connectionUri), msg,
+                Boolean.class);
     }
 
     @GET
     @Path("{id}")
     public String getById(@PathParam("id") String id) {
         LOG.infof("Getting object with id : %s");
-        GetResult result = producerTemplate.requestBodyAndHeader(String.format("%s&operation=%s", connectionUri, COUCHBASE_GET), null, CouchbaseConstants.HEADER_ID, id, GetResult.class);
+        GetResult result = producerTemplate.requestBodyAndHeader(String.format("%s&operation=%s", connectionUri, COUCHBASE_GET),
+                null, CouchbaseConstants.HEADER_ID, id, GetResult.class);
         return result != null ? result.contentAs(String.class) : null;
     }
 
@@ -89,7 +78,8 @@ public class CouchbaseResource {
     @Path("{id}")
     public boolean delete(@PathParam("id") String id) {
         LOG.infof("Deleting object with id : %s");
-        producerTemplate.sendBodyAndHeader(String.format("%s&operation=%s", connectionUri, COUCHBASE_DELETE), null, CouchbaseConstants.HEADER_ID, id);
+        producerTemplate.sendBodyAndHeader(String.format("%s&operation=%s", connectionUri, COUCHBASE_DELETE), null,
+                CouchbaseConstants.HEADER_ID, id);
         return true;
     }
 }
