@@ -16,23 +16,52 @@
  */
 package org.apache.camel.quarkus.component.couchbase.it;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
+import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.equalTo;
 
 @QuarkusTest
 @TestHTTPEndpoint(CouchbaseResource.class)
 @QuarkusTestResource(CouchbaseTestResource.class)
-class CouchbaseTest {
+class CouchbaseInsertUpdateTest {
 
     @Test
     void testCouchbase() {
+
+        /*given()
+                .contentType(ContentType.TEXT)
+                .body("hello1")
+                .when()
+                .put("/id/DocumentID_1")
+                .then()
+                .statusCode(200)
+                .body(equalTo("true"));
+
         given()
+                .when()
+                .get("/DocumentID_1")
+                .then()
+                .statusCode(200)
+                .body(equalTo("hello1")) ;
+
+        given()
+                .when()
+                .delete("DocumentID_1")
+                .then()
+                .statusCode(200) ;
+*/
+      /*  given()
                 .contentType(ContentType.TEXT)
                 .body("hello1")
                 .when()
@@ -48,10 +77,10 @@ class CouchbaseTest {
                 .put()
                 .then()
                 .statusCode(200)
-                .body(equalTo("true"));
+                .body(equalTo("true"));*/
 
         // getting first message with id = id_1
-        given()
+     /*   given()
                 .when()
                 .get("/id_1")
                 .then()
@@ -64,7 +93,35 @@ class CouchbaseTest {
                 .get("/1000")
                 .then()
                 .statusCode(200)
-                .body(equalTo("hello2")) ;
+                .body(equalTo("hello2")) ;*/
+
+/*
+
+        await().atMost(10L, TimeUnit.SECONDS).until(() -> {
+            String result = RestAssured.delete("/id_1")
+                    .then().extract().body().asString();
+            return result == "true";
+        });*/
+        // deleting the message
+
+/*
+        // updating one document
+        given()
+                .contentType(ContentType.TEXT)
+                .body("hello1_updated")
+                .when()
+                .put("/id/id_1")
+                .then()
+                .statusCode(200)
+                .body(equalTo("true"));
+
+        // getting the updated message
+        given()
+                .when()
+                .get("/id_1")
+                .then()
+                .statusCode(200)
+                .body(equalTo("hello1_updated")) ;*/
 
     }
 
