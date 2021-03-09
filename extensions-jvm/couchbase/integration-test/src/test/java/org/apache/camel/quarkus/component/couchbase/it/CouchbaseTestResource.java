@@ -16,16 +16,16 @@ import org.testcontainers.couchbase.CouchbaseContainer;
 import org.testcontainers.utility.DockerImageName;
 
 public class CouchbaseTestResource implements ContainerResourceLifecycleManager {
-    private final static DockerImageName COUCHBASE_IMAGE = DockerImageName.parse("couchbase/server:6.5.1"); //DockerImageName.parse("couchbase:6.6.1");
+    private final static DockerImageName COUCHBASE_IMAGE = DockerImageName.parse("couchbase/server:6.5.1");
     public static final int KV_PORT = 11210;
     public static final int MANAGEMENT_PORT = 8091;
     public static final int VIEW_PORT = 8092;
     public static final int QUERY_PORT = 8093;
     public static final int SEARCH_PORT = 8094;
-    private static String bucketName = "testBucket";
+    protected static String bucketName = "testBucket";
 
     private CustomCouchbaseContainer container;
-    private Cluster cluster;
+    protected static Cluster cluster;
 
     private class CustomCouchbaseContainer extends CouchbaseContainer {
         public CustomCouchbaseContainer() {
