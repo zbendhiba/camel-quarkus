@@ -16,15 +16,18 @@
  */
 package org.apache.camel.quarkus.component.couchbase.it;
 
-import com.couchbase.client.java.Bucket;
-import com.couchbase.client.java.Collection;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
+import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.equalTo;
 
 @QuarkusTest
@@ -33,28 +36,22 @@ import static org.hamcrest.CoreMatchers.equalTo;
 class CouchbaseInsertUpdateTest {
 
     @Test
-    void testCouchbase() {
+    void test() {
+        // adding multiple documents
         for (int i = 0; i < 15; i++) {
-            String message = "hello"+i;
-            String documentId = "DocumentID_"+i;
+            String message = "hello" + i;
+            String documentId = "DocumentID_" + i;
             given()
                     .contentType(ContentType.TEXT)
                     .body(message)
                     .when()
-                    .put("/id/"+documentId)
+                    .put("/id/" + documentId)
                     .then()
                     .statusCode(200)
                     .body(equalTo("true"));
         }
-  /*     given()
-                .contentType(ContentType.TEXT)
-                .body("hello1")
-                .when()
-                .put("/id/DocumentID_1")
-                .then()
-                .statusCode(200)
-                .body(equalTo("true"));*/
 
+        // getting one document
         given()
                 .when()
                 .get("/DocumentID_1")
@@ -62,22 +59,14 @@ class CouchbaseInsertUpdateTest {
                 .statusCode(200)
                 .body(equalTo("hello1"));
 
+        // deleting the document
         given()
                 .when()
                 .delete("DocumentID_1")
                 .then()
                 .statusCode(200);
 
-
-       /* given()
-                .contentType(ContentType.TEXT)
-                .body("hello2")
-                .when()
-                .put("/id/DocumentID_2")
-                .then()
-                .statusCode(200)
-                .body(equalTo("true"));*/
-
+        // getting another document
         given()
                 .when()
                 .get("/DocumentID_2")
@@ -85,6 +74,7 @@ class CouchbaseInsertUpdateTest {
                 .statusCode(200)
                 .body(equalTo("hello2"));
 
+        // updating the document
         given()
                 .contentType(ContentType.TEXT)
                 .body("updating hello2")
@@ -94,6 +84,7 @@ class CouchbaseInsertUpdateTest {
                 .statusCode(200)
                 .body(equalTo("true"));
 
+        // check the result of update
         given()
                 .when()
                 .get("/DocumentID_2")
@@ -101,11 +92,12 @@ class CouchbaseInsertUpdateTest {
                 .statusCode(200)
                 .body(equalTo("updating hello2"));
 
-        given()
-                .when()
-                .get("/consumer")
-                .then()
-                .statusCode(200);
+        // make sure only the 10 first messages were consumed
+        await().atMost(10L, TimeUnit.SECONDS).until(() -> {
+            Long body = RestAssured.get("/consumer").then().extract().body().as(Long.class);
+            return body == 3;
+        });
+
     }
 
 }
