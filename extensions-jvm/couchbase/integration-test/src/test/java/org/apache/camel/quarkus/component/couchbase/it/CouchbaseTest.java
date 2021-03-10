@@ -32,9 +32,8 @@ class CouchbaseTest {
 
     @Test
     void test() {
-        // adding s
         // adding multiple documents
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 3; i++) {
             String message = "hello" + i;
             String documentId = "DocumentID_" + i;
             given()
@@ -47,16 +46,14 @@ class CouchbaseTest {
                     .body(equalTo("true"));
         }
 
-        // poll the first top 5
-        for (int i = 0; i < 5; i++) {
-            String message = "message" + i;
-            given()
-                    .when()
-                    .get("/poll")
-                    .then()
-                    .statusCode(200)
-                    .body(equalTo(message));
-        }
+        // poll the first document
+        String message = "hello0";
+        given()
+                .when()
+                .get("/poll")
+                .then()
+                .statusCode(200)
+                .body(equalTo(message));
 
         // getting one document
         given()
@@ -98,7 +95,6 @@ class CouchbaseTest {
                 .then()
                 .statusCode(200)
                 .body(equalTo("updating hello2"));
-
     }
 
 }

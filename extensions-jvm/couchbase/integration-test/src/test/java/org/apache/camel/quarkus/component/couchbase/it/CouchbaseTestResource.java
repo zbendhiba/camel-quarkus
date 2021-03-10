@@ -93,10 +93,6 @@ public class CouchbaseTestResource implements ContainerResourceLifecycleManager 
                 bucketName,
                 Collections.singletonMap(bucketName, new View("function (doc, meta) {  emit(meta.id, doc);}")));
         cluster.bucket(bucketName).viewIndexes().upsertDesignDocument(designDoc, DesignDocumentNamespace.PRODUCTION);
-        waitForCluster();
-    }
-
-    protected static void waitForCluster(){
         cluster.bucket(bucketName).waitUntilReady(Duration.ofSeconds(30));
     }
 }
