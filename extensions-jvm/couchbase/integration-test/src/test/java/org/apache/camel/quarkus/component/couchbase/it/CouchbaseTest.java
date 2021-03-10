@@ -16,18 +16,13 @@
  */
 package org.apache.camel.quarkus.component.couchbase.it;
 
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
-import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
-import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.equalTo;
 
 @QuarkusTest
@@ -37,8 +32,9 @@ class CouchbaseTest {
 
     @Test
     void test() {
+        // adding s
         // adding multiple documents
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < 10; i++) {
             String message = "hello" + i;
             String documentId = "DocumentID_" + i;
             given()
@@ -51,16 +47,16 @@ class CouchbaseTest {
                     .body(equalTo("true"));
         }
 
-        // adding this to wait end polling on simple
-    //    CouchbaseTestResource.waitForCluster();
-
-
-
-        // make sure only the 10 first messages were consumed
-       await().atMost(30L, TimeUnit.SECONDS).until(() -> {
-            long resultNumber = RestAssured.get("/consumer").then().extract().body().as(Long.class);
-            return resultNumber == 10;
-        });
+        // poll the first top 5
+        for (int i = 0; i < 5; i++) {
+            String message = "message" + i;
+            given()
+                    .when()
+                    .get("/poll")
+                    .then()
+                    .statusCode(200)
+                    .body(equalTo(message));
+        }
 
         // getting one document
         given()
