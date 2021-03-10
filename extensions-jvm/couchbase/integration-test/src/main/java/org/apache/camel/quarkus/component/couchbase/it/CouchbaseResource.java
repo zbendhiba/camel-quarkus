@@ -50,12 +50,6 @@ public class CouchbaseResource {
 
     private static final Logger LOG = Logger.getLogger(CouchbaseResource.class);
 
-    @ConfigProperty(name = "couchbase.connection.uri")
-    String connectionUri;
-
-    @ConfigProperty(name = "couchbase.bucket.name")
-    String bucketName;
-
     @Inject
     ProducerTemplate producerTemplate;
 
@@ -67,7 +61,7 @@ public class CouchbaseResource {
     @Produces(MediaType.TEXT_PLAIN)
     public boolean insert(@PathParam("id") String id, String msg) {
         LOG.infof("inserting message %msg with id %id");
-        return producerTemplate.requestBodyAndHeader(connectionUri, msg, CouchbaseConstants.HEADER_ID, id, Boolean.class);
+        return producerTemplate.requestBodyAndHeader("direct:insert", msg, CouchbaseConstants.HEADER_ID, id, Boolean.class);
     }
 
     @GET
@@ -75,7 +69,7 @@ public class CouchbaseResource {
     @Produces(MediaType.TEXT_PLAIN)
     public String getById(@PathParam("id") String id) {
         LOG.infof("Getting object with id : %s");
-        GetResult result = producerTemplate.requestBodyAndHeader(String.format("%s&operation=%s&queryTimeout=%s", connectionUri, COUCHBASE_GET, 10000),
+        GetResult result = producerTemplate.requestBodyAndHeader("direct:get",
                 null, CouchbaseConstants.HEADER_ID, id, GetResult.class);
         return result != null ? result.contentAs(String.class) : null;
     }
@@ -85,20 +79,21 @@ public class CouchbaseResource {
     @Produces(MediaType.TEXT_PLAIN)
     public boolean delete(@PathParam("id") String id) {
         LOG.infof("Deleting object with id : %s");
-        producerTemplate.sendBodyAndHeader(String.format("%s&operation=%s&queryTimeout=%s", connectionUri, COUCHBASE_DELETE, 10000), null,
+        producerTemplate.sendBodyAndHeader("direct:delete", null,
                 CouchbaseConstants.HEADER_ID, id);
         return true;
     }
 
     @Path("/consumer")
     @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    public long consumeDocuments() {
+    @Produces(MediaType.APPLICATION_JSON)
+    public Long consumeDocuments() {
         LOG.infof("getting response from mock endpoint mock:result");
         MockEndpoint mockEndpoint = context.getEndpoint("mock:result", MockEndpoint.class);
         return mockEndpoint.getReceivedExchanges().stream().map(
-                exchange -> exchange.getIn().getBody(String.class))
+                exchange -> exchange.getIn().getBody(GetResult.class))
                 .count();
+        //return 10L;
     }
 
 }

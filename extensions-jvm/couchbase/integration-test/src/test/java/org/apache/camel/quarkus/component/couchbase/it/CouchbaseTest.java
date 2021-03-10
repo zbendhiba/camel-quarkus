@@ -33,7 +33,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 @QuarkusTest
 @TestHTTPEndpoint(CouchbaseResource.class)
 @QuarkusTestResource(CouchbaseTestResource.class)
-class CouchbaseInsertUpdateTest {
+class CouchbaseTest {
 
     @Test
     void test() {
@@ -50,6 +50,17 @@ class CouchbaseInsertUpdateTest {
                     .statusCode(200)
                     .body(equalTo("true"));
         }
+
+        // adding this to wait end polling on simple
+    //    CouchbaseTestResource.waitForCluster();
+
+
+
+        // make sure only the 10 first messages were consumed
+       await().atMost(30L, TimeUnit.SECONDS).until(() -> {
+            long resultNumber = RestAssured.get("/consumer").then().extract().body().as(Long.class);
+            return resultNumber == 10;
+        });
 
         // getting one document
         given()
@@ -91,12 +102,6 @@ class CouchbaseInsertUpdateTest {
                 .then()
                 .statusCode(200)
                 .body(equalTo("updating hello2"));
-
-        // make sure only the 10 first messages were consumed
-        await().atMost(10L, TimeUnit.SECONDS).until(() -> {
-            Long body = RestAssured.get("/consumer").then().extract().body().as(Long.class);
-            return body == 3;
-        });
 
     }
 
