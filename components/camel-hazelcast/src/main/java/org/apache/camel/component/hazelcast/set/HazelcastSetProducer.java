@@ -16,7 +16,6 @@
  */
 package org.apache.camel.component.hazelcast.set;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import com.hazelcast.collection.ISet;
@@ -116,6 +115,6 @@ public class HazelcastSetProducer extends HazelcastDefaultProducer {
     }
 
     private void getAll(Exchange exchange) {
-        exchange.getMessage().setBody(new ArrayList<>(set));
+        exchange.getMessage().setBody(set);
     }
 }

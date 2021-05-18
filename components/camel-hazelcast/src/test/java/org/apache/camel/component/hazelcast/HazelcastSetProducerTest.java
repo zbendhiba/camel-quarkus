@@ -17,6 +17,9 @@
 package org.apache.camel.component.hazelcast;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import com.hazelcast.collection.ISet;
 import com.hazelcast.config.Config;
@@ -107,7 +110,7 @@ public class HazelcastSetProducerTest extends CamelTestSupport {
 
     @Test
     public void addAll() throws InterruptedException {
-        ArrayList<String> t = new ArrayList<>();
+        List<String> t = new ArrayList<>();
         t.add("test2");
         t.add("test3");
         template.sendBody("direct:addAll", t);
@@ -116,7 +119,7 @@ public class HazelcastSetProducerTest extends CamelTestSupport {
 
     @Test
     public void removeAll() throws InterruptedException {
-        ArrayList<String> t = new ArrayList<>();
+        List<String> t = new ArrayList<>();
         t.add("test1");
         t.add("test2");
         template.sendBody("direct:removeAll", t);
@@ -125,7 +128,7 @@ public class HazelcastSetProducerTest extends CamelTestSupport {
 
     @Test
     public void retainAll() throws InterruptedException {
-        ArrayList<String> t = new ArrayList<>();
+        List<String> t = new ArrayList<>();
         t.add("test3");
         t.add("test4");
         template.sendBody("direct:retainAll", t);
@@ -134,11 +137,11 @@ public class HazelcastSetProducerTest extends CamelTestSupport {
 
     @Test
     public void getAll() throws InterruptedException {
-        ArrayList<String> t = new ArrayList<>();
+        Set<String> t = new HashSet<>();
         t.add("test1");
         set.addAll(t);
         template.sendBody("direct:getAll", "test");
-        assertEquals(t, consumer.receiveBody("seda:out", 5000, ArrayList.class));
+        assertEquals(t, consumer.receiveBody("seda:out", 5000, Set.class));
     }
 
     @Override

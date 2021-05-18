@@ -16,7 +16,6 @@
  */
 package org.apache.camel.component.hazelcast.list;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
@@ -24,7 +23,11 @@ import com.hazelcast.collection.IList;
 import com.hazelcast.core.HazelcastInstance;
 import org.apache.camel.Exchange;
 import org.apache.camel.Producer;
-import org.apache.camel.component.hazelcast.*;
+import org.apache.camel.component.hazelcast.HazelcastComponentHelper;
+import org.apache.camel.component.hazelcast.HazelcastConstants;
+import org.apache.camel.component.hazelcast.HazelcastDefaultEndpoint;
+import org.apache.camel.component.hazelcast.HazelcastDefaultProducer;
+import org.apache.camel.component.hazelcast.HazelcastOperation;
 
 /**
  * Implementation of Hazelcast List {@link Producer}.
@@ -163,6 +166,6 @@ public class HazelcastListProducer extends HazelcastDefaultProducer {
     }
 
     private void getAll(Exchange exchange) {
-        exchange.getMessage().setBody(new ArrayList<>(list));
+        exchange.getMessage().setBody(list);
     }
 }
