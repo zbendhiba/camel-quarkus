@@ -5962,11 +5962,6 @@
                 <version>${eddsa.version}</version>
             </dependency>
             <dependency>
-                <groupId>net.minidev</groupId>
-                <artifactId>json-smart</artifactId>
-                <version>${json-smart.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr</artifactId>
                 <version>${antlr3.version}</version>
