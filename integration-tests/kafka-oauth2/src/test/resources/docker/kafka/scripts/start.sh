@@ -10,7 +10,7 @@ fi
 
 wait_for_url $URI "Waiting for Keycloak to start"
 
-wait_for_url "$URI/realms/${REALM:-demo}" "Waiting for realm '${REALM}' to be available"
+wait_for_url "$URI/realms/${REALM:-camel-example}" "Waiting for realm '${REALM}' to be available"
 
 ./simple_kafka_config.sh | tee /tmp/strimzi.properties
 

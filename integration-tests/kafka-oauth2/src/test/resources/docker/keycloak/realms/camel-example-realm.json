@@ -1,34 +1,10 @@
 {
-  "realm": "demo-ec",
+  "realm": "camel-example",
   "accessTokenLifespan": 300,
   "ssoSessionMaxLifespan": 32140800,
   "ssoSessionIdleTimeout": 32140800,
   "enabled": true,
   "sslRequired": "external",
-  "defaultSignatureAlgorithm": "ES256",
-  "components": {
-    "org.keycloak.keys.KeyProvider": [
-      {
-        "name": "ES256",
-        "providerId": "ecdsa-generated",
-        "subComponents": {},
-        "config": {
-          "ecdsaEllipticCurveKey": [
-            "P-256"
-          ],
-          "active": [
-            "true"
-          ],
-          "priority": [
-            "101"
-          ],
-          "enabled": [
-            "true"
-          ]
-        }
-      }
-    ]
-  },
   "users": [
     {
       "username": "alice",
@@ -204,6 +180,18 @@
       "attributes": {
         "access.token.lifespan": "32140800"
       }
+    },
+    {
+      "clientId": "kafka-cli",
+      "enabled": true,
+      "publicClient": true,
+      "bearerOnly": false,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "consentRequired" : false,
+      "fullScopeAllowed" : false
     },
     {
       "clientId": "kafka-producer-client",
