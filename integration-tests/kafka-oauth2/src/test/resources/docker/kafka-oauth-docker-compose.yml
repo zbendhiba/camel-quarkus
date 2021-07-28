@@ -1,9 +1,9 @@
-version: '3'
-
+version: '3.7'
 services:
   keycloak:
     image: quay.io/keycloak/keycloak:13.0.1
-    container_name: keycloak
+    networks:
+      - camel-example
     ports:
       - 8080:8080
       - 8443:8443
@@ -28,7 +28,8 @@ services:
 
   kafka:
     image: quay.io/strimzi/kafka:0.23.0-kafka-2.8.0
-    container_name: kafka
+    networks:
+      - camel-example
     ports:
       - 9092:9092
       - 9093:9093
@@ -71,7 +72,8 @@ services:
 
   zookeeper:
     image: quay.io/strimzi/kafka:0.23.0-kafka-2.8.0
-    container_name: zookeeper
+    networks:
+      - camel-example
     ports:
       - 2181:2181
     volumes:
@@ -82,3 +84,6 @@ services:
       - cd /opt/kafka/strimzi && ./start.sh
     environment:
       - LOG_DIR=/tmp/logs
+
+networks:
+  camel-example:
