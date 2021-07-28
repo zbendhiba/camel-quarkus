@@ -45,7 +45,6 @@ services:
       - 9104:9104
       #- 5006:5006
     volumes:
-      - ${PWD}/kafka/libs:/opt/kafka/libs/strimzi
       - ${PWD}/kafka/config:/opt/kafka/config/strimzi
       - ${PWD}/kafka/scripts:/opt/kafka/strimzi
     command:
