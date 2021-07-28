@@ -219,6 +219,7 @@
         <module>xpath</module>
         <module>xstream</module>
         <module>zendesk</module>
+        <module>kafka-oauth2</module>
     </modules>
 
 </project>

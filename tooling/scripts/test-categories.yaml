@@ -189,6 +189,7 @@ group-13:
   - google
   - jira
   - js-dsl
+  - kafka-oauth2
   - kubernetes
   - salesforce
   - sap-netweaver
