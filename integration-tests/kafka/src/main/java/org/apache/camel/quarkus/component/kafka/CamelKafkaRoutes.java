@@ -21,10 +21,22 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Named;
 
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.kafka.KafkaConstants;
+import org.apache.camel.component.kafka.KafkaManualCommit;
 import org.apache.camel.processor.idempotent.kafka.KafkaIdempotentRepository;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 public class CamelKafkaRoutes extends RouteBuilder {
+
+    private final static String KAFKA_CONSUMER_MANUAL_COMMIT = "kafka:manual-commit-topic"
+            + "?groupId=group1&sessionTimeoutMs=30000&autoCommitEnable=false"
+            + "&allowManualCommit=true&autoOffsetReset=earliest";
+
+    private final static String SEDA_FOO = "seda:foo";
+    private final static String SEDA_BAR = "seda:bar";
+
     @ConfigProperty(name = "camel.component.kafka.brokers")
     String brokers;
 
@@ -46,5 +58,20 @@ public class CamelKafkaRoutes extends RouteBuilder {
                 .messageIdRepositoryRef("kafkaIdempotentRepository")
                 .to("mock:idempotent-results")
                 .end();
+
+        from(KAFKA_CONSUMER_MANUAL_COMMIT)
+                .routeId("foo")
+                .to(SEDA_FOO)
+                .process(e -> {
+                    KafkaManualCommit manual = e.getIn().getHeader(KafkaConstants.MANUAL_COMMIT, KafkaManualCommit.class);
+                    assertNotNull(manual);
+                    manual.commitSync();
+                });
+
+        from(KAFKA_CONSUMER_MANUAL_COMMIT)
+                .routeId("bar")
+                .autoStartup(false)
+                .to(SEDA_BAR);
+
     }
 }

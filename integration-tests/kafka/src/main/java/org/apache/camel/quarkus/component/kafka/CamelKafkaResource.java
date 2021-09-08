@@ -39,10 +39,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.camel.CamelContext;
+import org.apache.camel.ConsumerTemplate;
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.kafka.KafkaClientFactory;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.apache.camel.spi.RouteController;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -67,6 +69,9 @@ public class CamelKafkaResource {
 
     @Inject
     ProducerTemplate producerTemplate;
+
+    @Inject
+    ConsumerTemplate consumerTemplate;
 
     @Path("/custom/client/factory/missing")
     @GET
@@ -126,5 +131,36 @@ public class CamelKafkaResource {
                 .map(Exchange::getMessage)
                 .map(m -> m.getBody(String.class))
                 .collect(Collectors.toList());
+    }
+
+    @Path("/foo/{action}")
+    @POST
+    public Response modifyFooConsumerState(@PathParam("action") String action) throws Exception {
+        modifyConsumerState("foo", action);
+        return Response.ok().build();
+    }
+
+    @Path("/bar/{action}")
+    @POST
+    public Response modifyBarConsumerState(@PathParam("action") String action) throws Exception {
+        modifyConsumerState("bar", action);
+        return Response.ok().build();
+    }
+
+    private void modifyConsumerState(String routeId, String action) throws Exception {
+        RouteController controller = context.getRouteController();
+        if (action.equals("start")) {
+            controller.startRoute(routeId);
+        } else if (action.equals("stop")) {
+            controller.stopRoute(routeId);
+        } else {
+            throw new IllegalArgumentException("Unknown action: " + action);
+        }
+    }
+
+    @Path("/seda/{queue}")
+    @GET
+    public String getSedaMessage(@PathParam("queue") String queueName) {
+        return consumerTemplate.receiveBody(String.format("seda:%s", queueName), 1000, String.class);
     }
 }

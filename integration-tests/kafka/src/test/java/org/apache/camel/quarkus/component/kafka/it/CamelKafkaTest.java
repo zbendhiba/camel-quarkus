@@ -18,6 +18,7 @@ package org.apache.camel.quarkus.component.kafka.it;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
@@ -25,10 +26,12 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
 import org.apache.camel.quarkus.test.support.kafka.KafkaTestResource;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -85,5 +88,91 @@ public class CamelKafkaTest {
                 .then()
                 .statusCode(200)
                 .body(is("true"));
+    }
+
+    @Test
+    void testManualCommit() {
+        String body1 = UUID.randomUUID().toString();
+
+        // test consuming first message with manual auto-commit
+        // send message that should be consumed by route with routeId = foo
+        given()
+                .contentType("text/plain")
+                .body(body1)
+                .post("/kafka/manual-commit-topic")
+                .then()
+                .statusCode(200);
+
+        // make sure the message has been consumed
+        given()
+                .contentType("text/plain")
+                .body(body1)
+                .get("/kafka/seda/foo")
+                .then()
+                .body(equalTo(body1));
+
+        // stop the foo route
+        given()
+                .contentType("text/plain")
+                .body(body1)
+                .post("/kafka/foo/stop")
+                .then()
+                .statusCode(200);
+
+        // start the bar route
+        given()
+                .contentType("text/plain")
+                .body(body1)
+                .post("/kafka/bar/start")
+                .then()
+                .statusCode(200);
+
+        String body2 = UUID.randomUUID().toString();
+
+        given()
+                .contentType("text/plain")
+                .body(body2)
+                .post("/kafka/manual-commit-topic")
+                .then()
+                .statusCode(200);
+
+        // wait for the bar route to start
+        Awaitility.await().pollInterval(50, TimeUnit.MILLISECONDS).atMost(10, TimeUnit.SECONDS).until(() -> {
+
+            // make sure the message has been consumed
+            String result = given()
+                    .contentType("text/plain")
+                    .get("/kafka/seda/bar")
+                    .asString();
+            return body2.equals(result);
+        });
+
+        // stop bar route
+        given()
+                .contentType("text/plain")
+                .body(body1)
+                .post("/kafka/bar/stop")
+                .then()
+                .statusCode(200);
+
+        // start the foo route
+        given()
+                .contentType("text/plain")
+                .body(body1)
+                .post("/kafka/foo/start")
+                .then()
+                .statusCode(200);
+
+        // as the bar route didn't commit the message, the foo Route should consume the message
+        // wait for the bar route to start
+        Awaitility.await().pollInterval(50, TimeUnit.MILLISECONDS).atMost(10, TimeUnit.SECONDS).until(() -> {
+
+            // make sure the message has been consumed
+            String result = given()
+                    .contentType("text/plain")
+                    .get("/kafka/seda/foo")
+                    .asString();
+            return body2.equals(result);
+        });
     }
 }
