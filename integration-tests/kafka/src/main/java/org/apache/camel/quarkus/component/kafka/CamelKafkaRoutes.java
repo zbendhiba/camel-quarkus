@@ -26,8 +26,6 @@ import org.apache.camel.component.kafka.KafkaManualCommit;
 import org.apache.camel.processor.idempotent.kafka.KafkaIdempotentRepository;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 public class CamelKafkaRoutes extends RouteBuilder {
 
     private final static String KAFKA_CONSUMER_MANUAL_COMMIT = "kafka:manual-commit-topic"
@@ -59,15 +57,16 @@ public class CamelKafkaRoutes extends RouteBuilder {
                 .to("mock:idempotent-results")
                 .end();
 
+        // Kafka consumer that use Maual commit and that does performs a manual commit
         from(KAFKA_CONSUMER_MANUAL_COMMIT)
                 .routeId("foo")
                 .to(SEDA_FOO)
                 .process(e -> {
                     KafkaManualCommit manual = e.getIn().getHeader(KafkaConstants.MANUAL_COMMIT, KafkaManualCommit.class);
-                    assertNotNull(manual);
                     manual.commitSync();
                 });
 
+        // Kafka consumer that use Maual commit and that misses to perform the manual commit
         from(KAFKA_CONSUMER_MANUAL_COMMIT)
                 .routeId("bar")
                 .autoStartup(false)
