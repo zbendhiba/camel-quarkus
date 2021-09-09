@@ -164,7 +164,7 @@ public class CamelKafkaTest {
                 .statusCode(200);
 
         // as the bar route didn't commit the message, the foo Route should consume the message
-        // wait for the bar route to start
+        // wait for the foo route to start
         Awaitility.await().pollInterval(50, TimeUnit.MILLISECONDS).atMost(10, TimeUnit.SECONDS).until(() -> {
 
             // make sure the message has been consumed
