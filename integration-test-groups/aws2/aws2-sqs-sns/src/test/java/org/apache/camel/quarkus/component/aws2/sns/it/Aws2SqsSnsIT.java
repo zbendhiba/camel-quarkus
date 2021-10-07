@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.quarkus.component.aws2.sqs.it;
+package org.apache.camel.quarkus.component.aws2.sns.it;
 
 import io.quarkus.test.junit.NativeImageTest;
 
