@@ -16,9 +16,15 @@
  */
 package org.apache.camel.quarkus.component.aws2.sqs.it;
 
+import java.util.Locale;
+
 import org.apache.camel.quarkus.test.support.aws2.Aws2TestEnvContext;
 import org.apache.camel.quarkus.test.support.aws2.Aws2TestEnvCustomizer;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.testcontainers.containers.localstack.LocalStackContainer.Service;
+import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.services.sqs.model.CreateQueueRequest;
+import software.amazon.awssdk.services.sqs.model.DeleteQueueRequest;
 
 public class Aws2SqsTestEnvCustomizer implements Aws2TestEnvCustomizer {
 
@@ -29,6 +35,19 @@ public class Aws2SqsTestEnvCustomizer implements Aws2TestEnvCustomizer {
 
     @Override
     public void customize(Aws2TestEnvContext envContext) {
+        /* SQS */
+        final String queueName = "camel-quarkus-" + RandomStringUtils.randomAlphanumeric(49).toLowerCase(Locale.ROOT);
+        envContext.property("aws-sqs.queue-name", queueName);
+
+        final SqsClient sqsClient = envContext.client(Service.SQS, SqsClient::builder);
+        {
+            final String queueUrl = sqsClient.createQueue(
+                    CreateQueueRequest.builder()
+                            .queueName(queueName)
+                            .build())
+                    .queueUrl();
+            envContext.closeable(() -> sqsClient.deleteQueue(DeleteQueueRequest.builder().queueUrl(queueUrl).build()));
+        }
 
     }
 }

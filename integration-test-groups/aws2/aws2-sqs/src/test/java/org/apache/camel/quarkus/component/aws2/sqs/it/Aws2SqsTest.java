@@ -16,7 +16,6 @@
  */
 package org.apache.camel.quarkus.component.aws2.sqs.it;
 
-import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
@@ -26,8 +25,8 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.apache.camel.quarkus.test.support.aws2.Aws2TestResource;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.awaitility.Awaitility;
+import org.eclipse.microprofile.config.ConfigProvider;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -42,13 +41,13 @@ public class Aws2SqsTest {
     @Test
     void testSqs() {
 
-        final String queueName = "camel-quarkus-" + RandomStringUtils.randomAlphanumeric(49).toLowerCase(Locale.ROOT);
+        final String queueName = getPredefinedQueueName();
 
         try {
             // auto create the queue
-            RestAssured.post("/aws2-sqs/sqs/queue/autocreate/" + queueName)
+            /*   RestAssured.post("/aws2-sqs/sqs/queue/autocreate/" + queueName)
                     .then()
-                    .statusCode(200);
+                    .statusCode(200);*/
             Assertions.assertTrue(Stream.of(listQueues(queueName)).anyMatch(url -> url.contains(queueName)));
 
             // send and receive a message
@@ -65,6 +64,10 @@ public class Aws2SqsTest {
             deleteQueue(queueName);
         }
 
+    }
+
+    private String getPredefinedQueueName() {
+        return ConfigProvider.getConfig().getValue("aws-sqs.queue-name", String.class);
     }
 
     private String[] listQueues(String queueName) {
