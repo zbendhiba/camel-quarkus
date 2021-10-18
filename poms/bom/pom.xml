@@ -6235,6 +6235,11 @@
                 <artifactId>xercesImpl</artifactId>
                 <version>${xerces.version}</version>
             </dependency>
+            <dependency>
+                <groupId>io.atlasmap</groupId>
+                <artifactId>atlas-dfdl-module</artifactId>
+                <version>${atlasmap-version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

@@ -22,10 +22,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import io.atlasmap.core.ConstantModule;
 import io.atlasmap.core.DefaultAtlasContextFactory;
 import io.atlasmap.core.DefaultAtlasModuleInfo;
+import io.atlasmap.core.PropertyModule;
 import io.atlasmap.csv.module.CsvModule;
-import io.atlasmap.java.module.JavaModule;
 import io.atlasmap.json.module.JsonModule;
 import io.atlasmap.mxbean.AtlasContextFactoryMXBean;
 import io.atlasmap.mxbean.AtlasModuleInfoMXBean;
@@ -62,27 +63,38 @@ class AtlasmapProcessor {
         items.add(new ReflectiveClassBuildItem(false, false, DefaultAtlasModuleInfo.class));
         items.add(new ReflectiveClassBuildItem(true, false, JsonModule.class));
         items.add(new ReflectiveClassBuildItem(true, false, CsvModule.class));
-        items.add(new ReflectiveClassBuildItem(true, false, JavaModule.class));
+        // items.add(new ReflectiveClassBuildItem(true, false, JavaModule.class));
         items.add(new ReflectiveClassBuildItem(true, false, XmlModule.class));
+        items.add(new ReflectiveClassBuildItem(true, false, ConstantModule.class));
+        items.add(new ReflectiveClassBuildItem(true, false, PropertyModule.class));
         items.add(new ReflectiveClassBuildItem(false, true, false, AtlasContextFactoryMXBean.class));
         items.add(new ReflectiveClassBuildItem(false, true, false, AtlasModuleInfoMXBean.class));
         // that class needs reflection on both methods and fields : see issue https://github.com/atlasmap/atlasmap/issues/2722
         items.add(new ReflectiveClassBuildItem(false, true, true, DataSourceMetadata.class));
         return items;
     }
-
+    /*
     @BuildStep
     NativeImageResourceBuildItem resource() {
         return new NativeImageResourceBuildItem("META-INF/services/atlas/module/atlas.module");
+    }*/
+
+    @BuildStep
+    void registerResources(BuildProducer<NativeImageResourceBuildItem> nativeImage) {
+        nativeImage.produce(new NativeImageResourceBuildItem("META-INF/services/atlas/module/atlas.module"));
     }
 
     @BuildStep
     void addDependencies(BuildProducer<IndexDependencyBuildItem> indexDependency) {
         indexDependency.produce(new IndexDependencyBuildItem("io.atlasmap", "atlas-model"));
         indexDependency.produce(new IndexDependencyBuildItem("io.atlasmap", "atlas-xml-model"));
-        indexDependency.produce(new IndexDependencyBuildItem("io.atlasmap", "atlas-java-model"));
+        //indexDependency.produce(new IndexDependencyBuildItem("io.atlasmap", "atlas-java-model"));
         indexDependency.produce(new IndexDependencyBuildItem("io.atlasmap", "atlas-json-model"));
         indexDependency.produce(new IndexDependencyBuildItem("io.atlasmap", "atlas-csv-model"));
+        indexDependency.produce(new IndexDependencyBuildItem("io.atlasmap", "atlas-xml-module"));
+        // indexDependency.produce(new IndexDependencyBuildItem("io.atlasmap", "atlas-java-module"));
+        indexDependency.produce(new IndexDependencyBuildItem("io.atlasmap", "atlas-json-module"));
+        indexDependency.produce(new IndexDependencyBuildItem("io.atlasmap", "atlas-csv-module"));
     }
 
     @BuildStep
