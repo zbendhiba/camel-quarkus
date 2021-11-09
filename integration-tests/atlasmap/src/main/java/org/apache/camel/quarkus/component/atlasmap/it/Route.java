@@ -23,13 +23,13 @@ public class Route extends EndpointRouteBuilder {
     @Override
     public void configure() throws Exception {
 
-        // example of Routes that need the class Account to be registred for reflection
+     /*   // example of Routes that need the class Account to be registred for reflection
         from("platform-http:/atlasmap/json/java2csv?httpMethodRestrict=POST")
                 .unmarshal().json(Account.class)
                 .to(atlasmap("mapping/json/atlasmapping-java-to-csv.json"));
 
         from("platform-http:/atlasmap/json/csv2java?httpMethodRestrict=POST")
                 .to("atlasmap:mapping/json/atlasmapping-csv-to-java.json")
-                .marshal().json(Account.class);
+                .marshal().json(Account.class);*/
     }
 }
