@@ -134,6 +134,9 @@
         <module>kafka-sasl-ssl</module>
         <module>kafka-ssl</module>
         <module>kamelet</module>
+        <module>knative</module>
+        <module>knative-consumer</module>
+        <module>knative-producer</module>
         <module>kotlin</module>
         <module>kubernetes</module>
         <module>kudu</module>
