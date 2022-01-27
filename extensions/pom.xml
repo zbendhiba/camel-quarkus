@@ -149,6 +149,7 @@
         <module>jta</module>
         <module>kafka</module>
         <module>kamelet</module>
+        <module>knative</module>
         <module>kotlin</module>
         <module>kubernetes</module>
         <module>kudu</module>
