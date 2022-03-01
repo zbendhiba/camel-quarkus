@@ -48,6 +48,9 @@ public class SlackResource {
     @ConfigProperty(name = "slack.token")
     String slackToken;
 
+    @ConfigProperty(name = "slack.webhook.url")
+    String slackWebHookUrl;
+
     @Path("/messages")
     @GET
     @Produces(MediaType.TEXT_PLAIN)
@@ -57,11 +60,21 @@ public class SlackResource {
         return message.getText();
     }
 
-    @Path("/message")
+    @Path("/message/token")
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
-    public Response createSlackMessage(String message) throws Exception {
+    public Response createSlackMessageWithToken(String message) throws Exception {
         producerTemplate.requestBody("slack://test-channel?" + getSlackAuthParams(), message);
+        return Response
+                .created(new URI("https://camel.apache.org/"))
+                .build();
+    }
+
+    @Path("/message/webhook")
+    @POST
+    @Consumes(MediaType.TEXT_PLAIN)
+    public Response createSlackMessageWithWebhook(String message) throws Exception {
+        producerTemplate.requestBody(String.format("slack://test-channel?webhookUrl=%s", slackWebHookUrl), message);
         return Response
                 .created(new URI("https://camel.apache.org/"))
                 .build();

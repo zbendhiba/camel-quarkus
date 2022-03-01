@@ -47,11 +47,27 @@ class SlackTest {
 
     @Test
     public void testSlackProduceConsumeMessages() {
-        final String message = "Hello Camel Quarkus Slack" + (externalSlackEnabled() ? " " + UUID.randomUUID() : "");
+        // sending a message using Token
+        String message = "Hello Camel Quarkus Slack using Token" + (externalSlackEnabled() ? " " + UUID.randomUUID() : "");
         RestAssured.given()
                 .contentType(ContentType.TEXT)
                 .body(message)
-                .post("/slack/message")
+                .post("/slack/message/token")
+                .then()
+                .statusCode(201);
+
+        RestAssured.get("/slack/messages")
+                .then()
+                .statusCode(200)
+                .body(equalTo(message));
+
+        // sending a message using Webhook URL
+        message = "Hello Camel Quarkus Slack using Webhook URL" + (externalSlackEnabled() ? " " + UUID.randomUUID() : "");
+
+        RestAssured.given()
+                .contentType(ContentType.TEXT)
+                .body(message)
+                .post("/slack/message/webhook")
                 .then()
                 .statusCode(201);
 
