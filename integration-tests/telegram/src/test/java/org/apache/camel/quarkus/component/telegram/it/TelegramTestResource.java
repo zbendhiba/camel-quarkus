@@ -18,6 +18,7 @@ package org.apache.camel.quarkus.component.telegram.it;
 
 import java.util.Map;
 
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import org.apache.camel.quarkus.test.wiremock.WireMockTestResourceLifecycleManager;
 import org.apache.camel.util.CollectionHelper;
 
@@ -25,14 +26,18 @@ public class TelegramTestResource extends WireMockTestResourceLifecycleManager {
 
     private static final String TELEGRAM_API_BASE_URL = "https://api.telegram.org";
     private static final String TELEGRAM_ENV_AUTHORIZATION_TOKEN = "TELEGRAM_AUTHORIZATION_TOKEN";
+    private static final String TELEGRAM_ENV_WEBHOOK_URL = "TELEGRAM_ENV_WEBHOOK_URL";
 
     @Override
     public Map<String, String> start() {
         Map<String, String> properties = super.start();
-        String wireMockUrl = properties.get("wiremock.url");
+        String wireMockUrl = properties.get("wiremock.url.ssl");
         String baseUri = wireMockUrl != null ? wireMockUrl : TELEGRAM_API_BASE_URL;
+        String webhookUrl =  wireMockUrl != null ? getWebhookUrl(wireMockUrl) : TELEGRAM_ENV_WEBHOOK_URL;
         return CollectionHelper.mergeMaps(properties,
-                CollectionHelper.mapOf("camel.component.telegram.base-uri", baseUri));
+                CollectionHelper.mapOf("camel.component.telegram.base-uri", baseUri,
+                        "quarkus.rest-client.\"org.apache.camel.quarkus.component.telegram.it.WebhookRestClient\".url", webhookUrl,
+                        "camel.component.webhook.configuration.webhook-external-url", webhookUrl+"/webhook" ));
     }
 
     @Override
@@ -42,6 +47,16 @@ public class TelegramTestResource extends WireMockTestResourceLifecycleManager {
 
     @Override
     protected boolean isMockingEnabled() {
-        return !envVarsPresent(TELEGRAM_ENV_AUTHORIZATION_TOKEN);
+        return !envVarsPresent(TELEGRAM_ENV_AUTHORIZATION_TOKEN, TELEGRAM_ENV_WEBHOOK_URL);
+    }
+
+
+    private String getWebhookUrl(String wireMockUrl){
+        return wireMockUrl + "/fake-token";
+    }
+
+    @Override
+    protected void customizeWiremockConfiguration(WireMockConfiguration config) {
+        config.dynamicHttpsPort();
     }
 }

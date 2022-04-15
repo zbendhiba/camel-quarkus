@@ -16,8 +16,11 @@
  */
 package org.apache.camel.quarkus.component.telegram.it;
 
+import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -30,8 +33,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.camel.CamelContext;
 import org.apache.camel.ConsumerTemplate;
+import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
+import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.component.telegram.TelegramConstants;
 import org.apache.camel.component.telegram.TelegramMediaType;
 import org.apache.camel.component.telegram.model.EditMessageLiveLocationMessage;
@@ -42,6 +48,7 @@ import org.apache.camel.component.telegram.model.SendLocationMessage;
 import org.apache.camel.component.telegram.model.SendVenueMessage;
 import org.apache.camel.component.telegram.model.StopMessageLiveLocationMessage;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 
 @Path("/telegram")
@@ -58,6 +65,13 @@ public class TelegramResource {
 
     @ConfigProperty(name = "telegram.chatId")
     String chatId;
+
+    @Inject
+    @RestClient
+    WebhookRestClient webhookRestClient;
+
+    @Inject
+    CamelContext context;
 
     @Path("/messages")
     @GET
@@ -179,6 +193,28 @@ public class TelegramResource {
                 .created(new URI(String.format("https://telegram.org/")))
                 .entity(result)
                 .build();
+    }
+
+    @Path("/webhook")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response sendWebhook(InputStream message) throws URISyntaxException {
+        webhookRestClient.send(message);
+        return Response
+                .created(new URI(String.format("https://telegram.org/")))
+                .build();
+    }
+
+    @Path("/webhook")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public String receiveMessages() throws Exception {
+        final MockEndpoint mockEndpoint = context.getEndpoint("mock:webhook", MockEndpoint.class);
+        return mockEndpoint.getReceivedExchanges().stream()
+                .map(Exchange::getMessage)
+                .map(m -> m.getBody(String.class))
+                .collect(Collectors.joining("\n"));
     }
 
 }

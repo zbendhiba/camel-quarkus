@@ -204,4 +204,23 @@ public class TelegramTest {
                 .statusCode(201);
     }
 
+    @Test
+    void testWebhook(){
+        final String message = "{\"ok\":true,\"result\":{\"message_id\":43,\"from\":{\"id\":1459045600,\"is_bot\":true,\"first_name\":\"camel-quarkus-test\",\"username\":\"CamelQuarkusTestBot\"},\"chat\":{\"id\":1426416050,\"first_name\":\"Apache\",\"last_name\":\"Camel\",\"type\":\"private\"},\"date\":1604406366,\"text\":\"A message from camel-quarkus-telegram\"}}";
+        RestAssured.given()
+                .contentType(ContentType.JSON)
+                .body(message)
+                .post("/telegram/webhook")
+                .then()
+                .statusCode(201);
+
+        Awaitility.await().pollInterval(1, TimeUnit.SECONDS).atMost(10, TimeUnit.SECONDS).until(() -> {
+            final String body = RestAssured.given()
+                    .get("/telegram/webhook")
+                    .then()
+                    .extract().body().asString();
+            return body != null && body.contains("A message from camel-quarkus-telegram");
+        });
+    }
+
 }
