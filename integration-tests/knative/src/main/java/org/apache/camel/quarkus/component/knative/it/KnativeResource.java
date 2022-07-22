@@ -16,6 +16,9 @@
  */
 package org.apache.camel.quarkus.component.knative.it;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.Json;
@@ -24,8 +27,10 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.apache.camel.CamelContext;
+import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.knative.KnativeComponent;
 
 @Path("/knative")
@@ -34,6 +39,11 @@ public class KnativeResource {
 
     @Inject
     CamelContext context;
+
+    @Inject
+    ProducerTemplate producerTemplate;
+
+    private final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 
     @GET
     @Path("/inspect")
@@ -45,5 +55,15 @@ public class KnativeResource {
                 .add("consumer-factory",
                         context.getComponent("knative", KnativeComponent.class).getConsumerFactory().getClass().getName())
                 .build();
+    }
+
+    @GET
+    @Path("/inject")
+    @Produces(MediaType.TEXT_HTML)
+    public Response inject() {
+        String message = String.format("{\"telegramId\":1234, \"text\":\"mama\", \"userName\":\"INES\", \"dateTime\":\"%s\"",
+                DATE_FORMAT.format(new Date()));
+        producerTemplate.sendBody("knative:channel/feedback", message);
+        return Response.ok().build();
     }
 }
