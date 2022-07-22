@@ -5,8 +5,8 @@ cqArtifactIdBase: cloudevents
 cqNativeSupported: true
 cqStatus: Stable
 cqDeprecated: false
-cqJvmSince: 2.9.0
-cqNativeSince: 2.9.0
+cqJvmSince: 2.11.0
+cqNativeSince: 2.11.0
 cqCamelPartName: cloudevents
 cqCamelPartTitle: Cloudevents
 cqCamelPartDescription: Camel support for the CloudEvents specification
