@@ -30,24 +30,12 @@
 
     <artifactId>camel-quarkus-cloudevents</artifactId>
     <name>Camel Quarkus :: Cloudevents :: Runtime</name>
-    <description>Camel support for the CloudEvents specification</description>
+    <description>Camel support for the CloudEvents specification.</description>
 
     <properties>
         <camel.quarkus.jvmSince>2.11.0</camel.quarkus.jvmSince>
         <camel.quarkus.nativeSince>2.11.0</camel.quarkus.nativeSince>
     </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.apache.camel.quarkus</groupId>
-                <artifactId>camel-quarkus-bom</artifactId>
-                <version>${project.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -60,11 +48,12 @@
         </dependency>
     </dependencies>
 
+
     <build>
         <plugins>
             <plugin>
                 <groupId>io.quarkus</groupId>
-                <artifactId>quarkus-bootstrap-maven-plugin</artifactId>
+                <artifactId>quarkus-extension-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -81,7 +70,6 @@
             </plugin>
         </plugins>
     </build>
-
 
     <profiles>
         <profile>
