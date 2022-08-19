@@ -6,7 +6,7 @@
 :cq-native-supported: true
 :cq-status: Stable
 :cq-status-deprecation: Stable
-:cq-description: Camel support for the CloudEvents specification
+:cq-description: Camel support for the CloudEvents specification.
 :cq-deprecated: false
 :cq-jvm-since: 2.11.0
 :cq-native-since: 2.11.0
@@ -14,7 +14,7 @@
 [.badges]
 [.badge-key]##JVM since##[.badge-supported]##2.11.0## [.badge-key]##Native since##[.badge-supported]##2.11.0##
 
-Camel support for the CloudEvents specification
+Camel support for the CloudEvents specification.
 
 == What's inside
 
