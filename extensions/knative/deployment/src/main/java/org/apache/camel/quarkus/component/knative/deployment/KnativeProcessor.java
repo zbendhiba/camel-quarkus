@@ -33,6 +33,7 @@ import org.apache.camel.component.knative.spi.KnativeResource;
 import org.apache.camel.quarkus.component.knative.KnativeConsumerRecorder;
 import org.apache.camel.quarkus.component.knative.KnativeProducerRecorder;
 import org.apache.camel.quarkus.component.knative.KnativeRecorder;
+import org.apache.camel.quarkus.core.deployment.spi.CamelContextBuildItem;
 import org.apache.camel.quarkus.core.deployment.spi.CamelRuntimeBeanBuildItem;
 import org.apache.camel.quarkus.core.deployment.spi.CamelServiceFilter;
 import org.apache.camel.quarkus.core.deployment.spi.CamelServiceFilterBuildItem;
@@ -70,14 +71,13 @@ class KnativeProcessor {
 
     @Record(ExecutionTime.RUNTIME_INIT)
     @BuildStep
-    CamelRuntimeBeanBuildItem knativeComponent(KnativeRecorder recorder) {
+    CamelRuntimeBeanBuildItem knativeComponent(KnativeRecorder recorder, CamelContextBuildItem camelContextBuildItem) {
         return new CamelRuntimeBeanBuildItem(
                 KnativeConstants.SCHEME,
                 KnativeComponent.class.getName(),
-                recorder.createKnativeComponent());
+                recorder.createKnativeComponent(camelContextBuildItem.getCamelContext()));
     }
 
-    // Consumer
     @Record(ExecutionTime.RUNTIME_INIT)
     @BuildStep
     CamelRuntimeBeanBuildItem knativeComponentCustomizer(
@@ -90,7 +90,6 @@ class KnativeProcessor {
                 recorder.createKnativeConsumerFactoryCustomizer(router.getHttpRouter()));
     }
 
-    // producer
     @Record(ExecutionTime.RUNTIME_INIT)
     @BuildStep
     CamelRuntimeBeanBuildItem knativeComponentCustomizer(
@@ -102,4 +101,5 @@ class KnativeProcessor {
                 ComponentCustomizer.class.getName(),
                 recorder.createKnativeProducerFactoryCustomizer(vertx.getVertx()));
     }
+
 }

@@ -22,7 +22,6 @@ import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
-import org.apache.camel.component.knative.http.KnativeHttpConsumerFactory;
 import org.apache.camel.component.knative.http.KnativeHttpProducerFactory;
 import org.junit.jupiter.api.Test;
 
@@ -32,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @TestHTTPEndpoint(KnativeResource.class)
 class KnativeTest {
 
-    @Test
+    /* @Test
     public void inspect() {
         JsonPath p = RestAssured.given()
                 .accept(MediaType.APPLICATION_JSON)
@@ -42,9 +41,27 @@ class KnativeTest {
                 .extract()
                 .body()
                 .jsonPath();
-
+    
         assertEquals(KnativeHttpConsumerFactory.class.getName(), p.getString("consumer-factory"));
         assertEquals(KnativeHttpProducerFactory.class.getName(), p.getString("producer-factory"));
+    }*/
+
+    @Test
+    public void inspect() {
+        JsonPath p = RestAssured.given()
+                .contentType(MediaType.TEXT_PLAIN)
+                .accept(MediaType.APPLICATION_JSON)
+                .get("/inspect")
+                .then()
+                .statusCode(200)
+                .extract()
+                .body()
+                .jsonPath();
+
+        // assertNull(p.getString("consumer-factory"));
+
+        assertEquals(KnativeHttpProducerFactory.class.getName(), p.getString("producer-factory"));
+
     }
 
 }
