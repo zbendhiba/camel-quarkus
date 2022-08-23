@@ -47,4 +47,9 @@ class KnativeTest {
         assertEquals(KnativeHttpProducerFactory.class.getName(), p.getString("producer-factory"));
     }
 
+    @Test
+    public void send() {
+
+    }
+
 }

@@ -1,0 +1,12 @@
+{
+  "services": [
+    {
+      "type": "channel",
+      "name": "feedback",
+      "url": "http://feedback-kn-channel.default.svc.cluster.local",
+      "metadata": {
+        "camel.endpoint.kind": "sink"
+      }
+    }
+  ]
+}

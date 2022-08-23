@@ -37,7 +37,7 @@
     <inceptionYear>2019</inceptionYear>
 
     <properties>
-
+        <camel.osgi.version.clean>3.18.1</camel.osgi.version.clean>
         <!-- Primary dependencies - maintained manually -->
         <camel.major.minor>3.18</camel.major.minor> <!-- run after each change: cd docs && mvnd validate -->
         <camel.version>${camel.major.minor}.1</camel.version>
