@@ -3,7 +3,7 @@
     {
       "type": "channel",
       "name": "feedback",
-      "url": "http://feedback-kn-channel.default.svc.cluster.local",
+      "url": "YOUR URL HERE",
       "metadata": {
         "camel.endpoint.kind": "sink"
       }

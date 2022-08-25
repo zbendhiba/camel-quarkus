@@ -3,7 +3,7 @@ package org.apache.camel.quarkus.component.knative.it;
 import io.quarkus.runtime.Quarkus;
 
 public class Main {
-    public static void main(String ...args) {
+    public static void main(String... args) {
         Quarkus.run(args);
     }
 }

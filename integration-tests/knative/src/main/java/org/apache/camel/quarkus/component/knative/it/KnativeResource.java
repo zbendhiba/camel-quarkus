@@ -20,6 +20,7 @@ import java.io.IOException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.ws.rs.GET;
@@ -32,7 +33,6 @@ import javax.ws.rs.core.Response;
 import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.knative.KnativeComponent;
-import org.apache.camel.component.knative.KnativeConstants;
 import org.apache.camel.component.knative.spi.KnativeEnvironment;
 
 import static org.apache.camel.component.knative.spi.KnativeEnvironment.mandatoryLoadFromResource;
@@ -46,6 +46,19 @@ public class KnativeResource {
 
     @Inject
     ProducerTemplate producerTemplate;
+
+    @Named("knativeenv")
+    KnativeEnvironment environment() throws IOException {
+        String path = "classpath:/environment_classic.json";
+        return mandatoryLoadFromResource(context, path);
+    }
+
+    @GET
+    @Path("/hello")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String hello() {
+        return "Hello Zineb! you are fully Knative! what an achievement!!";
+    }
 
     @GET
     @Path("/inspect")
@@ -62,11 +75,8 @@ public class KnativeResource {
     @GET
     @Path("/send/{msg}")
     public Response sendMessageToChannel(@PathParam("msg") String message) throws IOException {
-        String path = "classpath:/environment_classic.json";
-        KnativeEnvironment env = mandatoryLoadFromResource(context, path);
-        System.setProperty(KnativeConstants.CONFIGURATION_ENV_VARIABLE, path);
-
-        producerTemplate.sendBody("knative:channel/feedback", message);
+        producerTemplate.sendBody("knative:channel/feedback?environment=#knativeenv", message);
+        System.out.println(String.format("Sending %s is okay", message));
         return Response.ok().build();
     }
 }
