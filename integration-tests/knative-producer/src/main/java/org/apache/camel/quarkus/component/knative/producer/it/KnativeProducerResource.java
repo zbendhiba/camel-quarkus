@@ -16,17 +16,26 @@
  */
 package org.apache.camel.quarkus.component.knative.producer.it;
 
+import java.io.IOException;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.apache.camel.CamelContext;
+import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.knative.KnativeComponent;
+import org.apache.camel.component.knative.spi.KnativeEnvironment;
+
+import static org.apache.camel.component.knative.spi.KnativeEnvironment.mandatoryLoadFromResource;
 
 @Path("/knative-producer")
 @ApplicationScoped
@@ -34,20 +43,40 @@ public class KnativeProducerResource {
     @Inject
     CamelContext context;
 
+    @Inject
+    ProducerTemplate producerTemplate;
+
+    @Named("knativeenv")
+    KnativeEnvironment environment() throws IOException {
+        String path = "classpath:/environment_classic.json";
+        return mandatoryLoadFromResource(context, path);
+    }
+
     @GET
-    @Path("inspect")
+    @Path("/hello")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String hello() {
+        return "Hello World source and sink!";
+    }
+
+    @GET
+    @Path("/inspect")
     @Produces(MediaType.APPLICATION_JSON)
     public JsonObject inspect() {
-        var component = context.getComponent("knative", KnativeComponent.class);
-        var builder = Json.createObjectBuilder();
-
-        if (component.getProducerFactory() != null) {
-            builder.add("producer-factory", component.getProducerFactory().getClass().getName());
-        }
-        if (component.getConsumerFactory() != null) {
-            builder.add("consumer-factory", component.getConsumerFactory().getClass().getName());
-        }
-
-        return builder.build();
+        return Json.createObjectBuilder()
+                .add("producer-factory",
+                        context.getComponent("knative", KnativeComponent.class).getProducerFactory().getClass().getName())
+                .add("consumer-factory",
+                        context.getComponent("knative", KnativeComponent.class).getConsumerFactory().getClass().getName())
+                .build();
     }
+
+    @GET
+    @Path("/send/{msg}")
+    public Response sendMessageToChannel(@PathParam("msg") String message) throws IOException {
+        producerTemplate.sendBody("knative:channel/feedback?environment=#knativeenv", message);
+        System.out.println(String.format("Sending %s is okay", message));
+        return Response.ok().build();
+    }
+
 }

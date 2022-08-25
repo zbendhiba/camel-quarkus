@@ -6,14 +6,6 @@
       "name": "feedback",
       "url": "YOUR URL HERE",
       "metadata": {
-        "camel.endpoint.kind": "source"
-      }
-    },
-    {
-      "type": "channel",
-      "name": "feedback",
-      "url": "YOUR URL HERE",
-      "metadata": {
         "camel.endpoint.kind": "sink"
       }
     }

@@ -16,32 +16,10 @@
  */
 package org.apache.camel.quarkus.component.knative.consumer.it;
 
-import javax.ws.rs.core.MediaType;
-
-import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
-import io.restassured.RestAssured;
-import io.restassured.path.json.JsonPath;
-import org.apache.camel.component.knative.http.KnativeHttpConsumerFactory;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @QuarkusTest
-@TestHTTPEndpoint(KnativeConsumerResource.class)
-public class KnativeConsumerTest {
-    @Test
-    void inspect() {
-        JsonPath p = RestAssured.given()
-                .contentType(MediaType.TEXT_PLAIN)
-                .accept(MediaType.APPLICATION_JSON)
-                .get("/inspect")
-                .then()
-                .statusCode(200)
-                .extract()
-                .body()
-                .jsonPath();
 
-        assertEquals(KnativeHttpConsumerFactory.class.getName(), p.getString("consumer-factory"));
-    }
+public class KnativeConsumerTest {
+
 }

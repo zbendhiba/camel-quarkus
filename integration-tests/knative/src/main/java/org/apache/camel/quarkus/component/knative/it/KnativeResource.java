@@ -31,6 +31,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.camel.CamelContext;
+import org.apache.camel.ConsumerTemplate;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.knative.KnativeComponent;
 import org.apache.camel.component.knative.spi.KnativeEnvironment;
@@ -47,6 +48,9 @@ public class KnativeResource {
     @Inject
     ProducerTemplate producerTemplate;
 
+    @Inject
+    ConsumerTemplate consumerTemplate;
+
     @Named("knativeenv")
     KnativeEnvironment environment() throws IOException {
         String path = "classpath:/environment_classic.json";
@@ -57,7 +61,7 @@ public class KnativeResource {
     @Path("/hello")
     @Produces(MediaType.TEXT_PLAIN)
     public String hello() {
-        return "Hello Zineb! you are fully Knative! what an achievement!!";
+        return "Hello World source and sink!";
     }
 
     @GET
@@ -78,5 +82,12 @@ public class KnativeResource {
         producerTemplate.sendBody("knative:channel/feedback?environment=#knativeenv", message);
         System.out.println(String.format("Sending %s is okay", message));
         return Response.ok().build();
+    }
+
+    @Path("/read")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public String receiveFromChannel() throws Exception {
+        return consumerTemplate.receiveBody("knative:channel/feedback?environment=#knativeenv", 10000, String.class);
     }
 }

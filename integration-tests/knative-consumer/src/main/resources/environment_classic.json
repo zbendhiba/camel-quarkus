@@ -1,0 +1,13 @@
+{
+  "services": [
+
+    {
+      "type": "channel",
+      "name": "feedback",
+      "url": "YOUR URL HERE"s,
+      "metadata": {
+        "camel.endpoint.kind": "source"
+      }
+    }
+  ]
+}
