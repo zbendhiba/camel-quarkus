@@ -17,10 +17,11 @@
 package org.apache.camel.quarkus.component.knative.producer.it;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.ws.rs.GET;
@@ -32,10 +33,8 @@ import javax.ws.rs.core.Response;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;
+import org.apache.camel.component.cloudevents.CloudEvent;
 import org.apache.camel.component.knative.KnativeComponent;
-import org.apache.camel.component.knative.spi.KnativeEnvironment;
-
-import static org.apache.camel.component.knative.spi.KnativeEnvironment.mandatoryLoadFromResource;
 
 @Path("/knative-producer")
 @ApplicationScoped
@@ -46,37 +45,24 @@ public class KnativeProducerResource {
     @Inject
     ProducerTemplate producerTemplate;
 
-    @Named("knativeenv")
-    KnativeEnvironment environment() throws IOException {
-        String path = "classpath:/environment_classic.json";
-        return mandatoryLoadFromResource(context, path);
-    }
-
-    @GET
-    @Path("/hello")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String hello() {
-        return "Hello World source and sink!";
-    }
-
     @GET
     @Path("/inspect")
     @Produces(MediaType.APPLICATION_JSON)
     public JsonObject inspect() {
-        return Json.createObjectBuilder()
-                .add("producer-factory",
-                        context.getComponent("knative", KnativeComponent.class).getProducerFactory().getClass().getName())
-                .add("consumer-factory",
-                        context.getComponent("knative", KnativeComponent.class).getConsumerFactory().getClass().getName())
-                .build();
+        return Json.createObjectBuilder().add("producer-factory", context.getComponent("knative", KnativeComponent.class).getProducerFactory().getClass().getName()).add("consumer-factory", context.getComponent("knative", KnativeComponent.class).getConsumerFactory().getClass().getName()).build();
     }
 
     @GET
-    @Path("/send/{msg}")
+    @Path("/channel/send/{msg}")
     public Response sendMessageToChannel(@PathParam("msg") String message) throws IOException {
-        producerTemplate.sendBody("knative:channel/feedback?environment=#knativeenv", message);
-        System.out.println(String.format("Sending %s is okay", message));
+        producerTemplate.sendBodyAndHeader("knative:channel/channel-test", message, CloudEvent.CAMEL_CLOUD_EVENT_SOURCE, "channelTest");
         return Response.ok().build();
     }
 
+    @GET
+    @Path("/event/send/{msg}")
+    public Response sendMessageToBroker(@PathParam("msg") String message) throws IOException {
+        producerTemplate.sendBodyAndHeader("knative:event/broker-test", message, CloudEvent.CAMEL_CLOUD_EVENT_SOURCE, "eventTest");
+        return Response.ok().build();
+    }
 }
