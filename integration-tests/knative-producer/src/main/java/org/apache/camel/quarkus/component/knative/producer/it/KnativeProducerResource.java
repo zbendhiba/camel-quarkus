@@ -16,16 +16,22 @@
  */
 package org.apache.camel.quarkus.component.knative.producer.it;
 
+import java.io.IOException;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.apache.camel.CamelContext;
+import org.apache.camel.ProducerTemplate;
+import org.apache.camel.component.cloudevents.CloudEvent;
 import org.apache.camel.component.knative.KnativeComponent;
 
 @Path("/knative-producer")
@@ -33,6 +39,9 @@ import org.apache.camel.component.knative.KnativeComponent;
 public class KnativeProducerResource {
     @Inject
     CamelContext context;
+
+    @Inject
+    ProducerTemplate producerTemplate;
 
     @GET
     @Path("inspect")
@@ -49,5 +58,21 @@ public class KnativeProducerResource {
         }
 
         return builder.build();
+    }
+
+    @GET
+    @Path("/channel/send/{msg}")
+    public Response sendMessageToChannel(@PathParam("msg") String message) {
+        producerTemplate.sendBodyAndHeader("knative:channel/channel-test", message,
+                CloudEvent.CAMEL_CLOUD_EVENT_SOURCE, "channelTest");
+        return Response.ok().build();
+    }
+
+    @GET
+    @Path("/event/send/{msg}")
+    public Response sendMessageToBroker(@PathParam("msg") String message) throws IOException {
+        producerTemplate.sendBodyAndHeader("knative:event/broker-test", message,
+                CloudEvent.CAMEL_CLOUD_EVENT_SOURCE, "eventTest");
+        return Response.ok().build();
     }
 }

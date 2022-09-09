@@ -18,21 +18,23 @@ package org.apache.camel.quarkus.component.knative.producer.it;
 
 import javax.ws.rs.core.MediaType;
 
+import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
-import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
 import org.apache.camel.component.knative.http.KnativeHttpProducerFactory;
 import org.junit.jupiter.api.Test;
 
+import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @QuarkusTest
 @TestHTTPEndpoint(KnativeProducerResource.class)
+@QuarkusTestResource(KnativeTestResource.class)
 public class KnativeProducerTest {
     @Test
     void inspect() {
-        JsonPath p = RestAssured.given()
+        JsonPath p = given()
                 .contentType(MediaType.TEXT_PLAIN)
                 .accept(MediaType.APPLICATION_JSON)
                 .get("/inspect")
@@ -44,4 +46,21 @@ public class KnativeProducerTest {
 
         assertEquals(KnativeHttpProducerFactory.class.getName(), p.getString("producer-factory"));
     }
+
+    @Test
+    void sendToChannel() {
+        given()
+                .get("/channel/send/HelloWorld")
+                .then()
+                .statusCode(200);
+    }
+
+    @Test
+    void sendToBroker() {
+        given()
+                .get("/event/send/HelloWorld")
+                .then()
+                .statusCode(200);
+    }
+
 }
