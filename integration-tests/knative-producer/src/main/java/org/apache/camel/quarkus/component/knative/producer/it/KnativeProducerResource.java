@@ -17,11 +17,14 @@
 package org.apache.camel.quarkus.component.knative.producer.it;
 
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonObject;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -30,9 +33,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.camel.CamelContext;
+import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
-import org.apache.camel.component.cloudevents.CloudEvent;
+import org.apache.camel.component.cloudevents.CloudEvents;
 import org.apache.camel.component.knative.KnativeComponent;
+import org.apache.camel.component.mock.MockEndpoint;
 
 @Path("/knative-producer")
 @ApplicationScoped
@@ -63,16 +68,65 @@ public class KnativeProducerResource {
     @GET
     @Path("/channel/send/{msg}")
     public Response sendMessageToChannel(@PathParam("msg") String message) {
-        producerTemplate.sendBodyAndHeader("knative:channel/channel-test", message,
-                CloudEvent.CAMEL_CLOUD_EVENT_SOURCE, "channelTest");
+        producerTemplate.sendBody("direct:channel", message);
         return Response.ok().build();
     }
 
     @GET
     @Path("/event/send/{msg}")
     public Response sendMessageToBroker(@PathParam("msg") String message) throws IOException {
-        producerTemplate.sendBodyAndHeader("knative:event/broker-test", message,
-                CloudEvent.CAMEL_CLOUD_EVENT_SOURCE, "eventTest");
+        producerTemplate.sendBody("direct:event", message);
         return Response.ok().build();
+    }
+
+    @Path("/mock/{name}")
+    @GET
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.TEXT_PLAIN)
+    public boolean validMessage(@PathParam("name") String endpointName) throws Exception {
+        MockEndpoint mockEndpoint = context.getEndpoint(String.format("mock:%s", endpointName), MockEndpoint.class);
+        Exchange result = mockEndpoint.getReceivedExchanges().stream()
+                .findAny().get();
+
+        // check there is a time
+        String time = result.getMessage().getHeader("ce-time", String.class);
+        if (time == null) {
+            return false;
+        }
+        // check the time is valid
+        try {
+            DateTimeFormatter.ISO_INSTANT.parse(time);
+        } catch (DateTimeParseException e) {
+            // if no valid time format return false
+            return false;
+        }
+        // check there is an id
+        String id = result.getMessage().getHeader("ce-id", String.class);
+        if (id == null) {
+            return false;
+        }
+        // check there is a source
+        String source = result.getMessage().getHeader("ce-source", String.class);
+        if (source == null) {
+            return false;
+        }
+        // check there is a type
+        String type = result.getMessage().getHeader("ce-type", String.class);
+        if (type == null) {
+            return false;
+        }
+        // check there is a spec version
+        String specVersion = result.getMessage().getHeader("ce-specversion", String.class);
+        if (specVersion == null) {
+            return false;
+        }
+        // check spec version is valid
+        if (CloudEvents.v1_0.version().equals(specVersion) || CloudEvents.v1_0_1.version().equals(specVersion)) {
+            return true;
+        }
+
+        // spec version invalid
+        return false;
+
     }
 }

@@ -16,6 +16,8 @@
  */
 package org.apache.camel.quarkus.component.knative.producer.it;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.ws.rs.core.MediaType;
 
 import io.quarkus.test.common.QuarkusTestResource;
@@ -23,6 +25,7 @@ import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.path.json.JsonPath;
 import org.apache.camel.component.knative.http.KnativeHttpProducerFactory;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
@@ -48,19 +51,57 @@ public class KnativeProducerTest {
     }
 
     @Test
-    void sendToChannel() {
+    void sendToChannelWithProducerTemplate() {
         given()
                 .get("/channel/send/HelloWorld")
                 .then()
                 .statusCode(200);
+
+        Awaitility.await().pollInterval(1, TimeUnit.SECONDS).atMost(10, TimeUnit.SECONDS).until(() -> {
+            final String body = given()
+                    .get("/mock/channel")
+                    .then()
+                    .extract().body().asString();
+            return body != null && "true".equals(body);
+        });
     }
 
     @Test
-    void sendToBroker() {
+    void sendToBrokerWithProducerTemplate() {
         given()
                 .get("/event/send/HelloWorld")
                 .then()
                 .statusCode(200);
+
+        Awaitility.await().pollInterval(1, TimeUnit.SECONDS).atMost(10, TimeUnit.SECONDS).until(() -> {
+            final String body = given()
+                    .get("/mock/event")
+                    .then()
+                    .extract().body().asString();
+            return body != null && "true".equals(body);
+        });
+    }
+
+    @Test
+    void sendToChannelWithTimer() {
+        Awaitility.await().pollInterval(1, TimeUnit.SECONDS).atMost(10, TimeUnit.SECONDS).until(() -> {
+            final String body = given()
+                    .get("/mock/channel-timer")
+                    .then()
+                    .extract().body().asString();
+            return body != null && "true".equals(body);
+        });
+    }
+
+    @Test
+    void sendToBrokerWithTimer() {
+        Awaitility.await().pollInterval(1, TimeUnit.SECONDS).atMost(10, TimeUnit.SECONDS).until(() -> {
+            final String body = given()
+                    .get("/mock/event-timer")
+                    .then()
+                    .extract().body().asString();
+            return body != null && "true".equals(body);
+        });
     }
 
 }
