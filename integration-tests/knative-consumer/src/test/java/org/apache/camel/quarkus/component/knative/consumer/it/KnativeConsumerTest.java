@@ -16,17 +16,16 @@
  */
 package org.apache.camel.quarkus.component.knative.consumer.it;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.core.MediaType;
 
 import io.quarkus.test.junit.QuarkusTest;
-import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
-import org.apache.camel.ServiceStatus;
+import org.apache.camel.component.cloudevents.CloudEvents;
 import org.apache.camel.component.knative.http.KnativeHttpConsumerFactory;
 import org.awaitility.Awaitility;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
@@ -52,11 +51,15 @@ public class KnativeConsumerTest {
     @Test
     void consumeEvents() {
         // consume from channel
-        String cloudEvent = "{\"specversion\": \"1.0\", \"type\": \"org.camel.event\", \"id\": \"123456\", \"data\": \"Hello World Channel\", \"source\": \"camel\"}";
         given()
                 .contentType(MediaType.TEXT_PLAIN)
                 .accept(MediaType.APPLICATION_JSON)
-                .body(cloudEvent)
+                .header("ce-specversion", CloudEvents.v1_0.version())
+                .header("ce-id", UUID.randomUUID())
+                .header("ce-time", "2018-04-05T17:31:00Z")
+                .header("ce-source", "camel-channel-test")
+                .body("Hello World Channel")
+                .when()
                 .post("/channel")
                 .then()
                 .statusCode(200);
@@ -69,12 +72,15 @@ public class KnativeConsumerTest {
             return body != null && body.contains("Hello World Channel");
         });
 
-        cloudEvent = "{\"specversion\": \"1.0\", \"type\": \"org.apache.camel.event\", \"id\": \"123456\", \"data\": \"Hello World Broker\", \"source\": \"camel\"}";
         given()
                 .contentType(MediaType.TEXT_PLAIN)
-                .accept(MediaType.APPLICATION_JSON)
+                .accept(MediaType.TEXT_PLAIN)
                 .header("ce-type", "broker-test")
-                .body(cloudEvent)
+                .header("ce-specversion", CloudEvents.v1_0.version())
+                .header("ce-id", UUID.randomUUID())
+                .header("ce-time", "2018-04-05T17:31:00Z")
+                .header("ce-source", "camel-event-test")
+                .body("Hello World Broker")
                 .when()
                 .post("/event")
                 .then()
