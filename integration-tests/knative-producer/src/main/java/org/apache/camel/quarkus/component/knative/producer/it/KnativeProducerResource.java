@@ -16,7 +16,6 @@
  */
 package org.apache.camel.quarkus.component.knative.producer.it;
 
-import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
