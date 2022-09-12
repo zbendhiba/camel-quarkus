@@ -83,6 +83,22 @@ public class KnativeProducerTest {
     }
 
     @Test
+    void sendToEndpointWithProducerTemplate() {
+        given()
+                .get("/send/endpoint/HelloWorld")
+                .then()
+                .statusCode(200);
+
+        Awaitility.await().pollInterval(1, TimeUnit.SECONDS).atMost(10, TimeUnit.SECONDS).until(() -> {
+            final String body = given()
+                    .get("/mock/endpoint")
+                    .then()
+                    .extract().body().asString();
+            return body != null && "true".equals(body);
+        });
+    }
+
+    @Test
     void sendToChannelWithTimer() {
         Awaitility.await().pollInterval(1, TimeUnit.SECONDS).atMost(10, TimeUnit.SECONDS).until(() -> {
             final String body = given()
@@ -98,6 +114,17 @@ public class KnativeProducerTest {
         Awaitility.await().pollInterval(1, TimeUnit.SECONDS).atMost(10, TimeUnit.SECONDS).until(() -> {
             final String body = given()
                     .get("/mock/event-timer")
+                    .then()
+                    .extract().body().asString();
+            return body != null && "true".equals(body);
+        });
+    }
+
+    @Test
+    void sendToServiceWithTimer() {
+        Awaitility.await().pollInterval(1, TimeUnit.SECONDS).atMost(10, TimeUnit.SECONDS).until(() -> {
+            final String body = given()
+                    .get("/mock/endpoint-timer")
                     .then()
                     .extract().body().asString();
             return body != null && "true".equals(body);

@@ -75,7 +75,7 @@ public class KnativeProducerResource {
     @GET
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.TEXT_PLAIN)
-    public boolean validReceivedMessage(@PathParam("name") String endpointName) throws Exception {
+    public boolean validProducedCloudEvent(@PathParam("name") String endpointName) {
         MockEndpoint mockEndpoint = context.getEndpoint(String.format("mock:%s", endpointName), MockEndpoint.class);
         Exchange result = mockEndpoint.getReceivedExchanges().stream()
                 .findAny().get();

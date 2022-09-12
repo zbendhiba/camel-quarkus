@@ -8,6 +8,7 @@ public class KnativeTestResource extends WireMockTestResourceLifecycleManager {
 
     private static final String KNATIVE_CHANNEL_URL = "KNATIVE_CHANNEL_URL";
     private static final String KNATIVE_BROKER_URL = "KNATIVE_BROKER_URL";
+    private static final String KNATIVE_SERVICE_URL = "KNATIVE_SERVICE_URL";
 
     @Override
     protected String getRecordTargetBaseUrl() {
@@ -16,7 +17,7 @@ public class KnativeTestResource extends WireMockTestResourceLifecycleManager {
 
     @Override
     protected boolean isMockingEnabled() {
-        return !envVarsPresent(KNATIVE_CHANNEL_URL, KNATIVE_BROKER_URL);
+        return !envVarsPresent(KNATIVE_CHANNEL_URL, KNATIVE_BROKER_URL, KNATIVE_SERVICE_URL);
     }
 
     @Override
@@ -26,6 +27,7 @@ public class KnativeTestResource extends WireMockTestResourceLifecycleManager {
             String wiremockUrl = options.get("wiremock.url");
             options.put("channel.test.url", String.format("%s/channel-test", wiremockUrl));
             options.put("broker.test.url", String.format("%s/broker-test", wiremockUrl));
+            options.put("service.test.url", String.format("%s/service-test", wiremockUrl));
         }
         return options;
     }
