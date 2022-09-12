@@ -58,7 +58,7 @@ public class KnativeConsumerTest {
                 .header("ce-id", UUID.randomUUID())
                 .header("ce-time", "2018-04-05T17:31:00Z")
                 .header("ce-source", "camel-channel-test")
-                .body("Hello World Channel")
+                .body("Hello World - Testing Knative Channel Camel consumer")
                 .when()
                 .post("/channel")
                 .then()
@@ -69,18 +69,18 @@ public class KnativeConsumerTest {
                     .get("/knative-consumer/read/queue-channel")
                     .then()
                     .extract().body().asString();
-            return body != null && body.contains("Hello World Channel");
+            return body != null && body.contains("Hello World - Testing Knative Channel Camel consumer");
         });
 
         given()
                 .contentType(MediaType.TEXT_PLAIN)
                 .accept(MediaType.TEXT_PLAIN)
-                .header("ce-type", "broker-test")
+                .header("ce-type", "event-test")
                 .header("ce-specversion", CloudEvents.v1_0.version())
                 .header("ce-id", UUID.randomUUID())
                 .header("ce-time", "2018-04-05T17:31:00Z")
                 .header("ce-source", "camel-event-test")
-                .body("Hello World Broker")
+                .body("Hello World - Testing Knative Broker Camel consumer")
                 .when()
                 .post("/event")
                 .then()
@@ -88,10 +88,10 @@ public class KnativeConsumerTest {
 
         Awaitility.await().pollInterval(1, TimeUnit.SECONDS).atMost(10, TimeUnit.SECONDS).until(() -> {
             final String body = given()
-                    .get("/knative-consumer/read/queue-broker")
+                    .get("/knative-consumer/read/queue-event")
                     .then()
                     .extract().body().asString();
-            return body != null && body.contains("Hello World Broker");
+            return body != null && body.contains("Hello World - Testing Knative Broker Camel consumer");
         });
     }
 

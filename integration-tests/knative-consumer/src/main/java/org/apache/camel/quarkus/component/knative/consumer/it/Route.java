@@ -8,8 +8,8 @@ public class Route extends RouteBuilder {
         from("knative:channel/channel-test")
                 .to("seda:queue-channel");
 
-        from("knative:event/broker-test")
-                .to("seda:queue-broker");
+        from("knative:event/event-test")
+                .to("seda:queue-event");
 
     }
 }
