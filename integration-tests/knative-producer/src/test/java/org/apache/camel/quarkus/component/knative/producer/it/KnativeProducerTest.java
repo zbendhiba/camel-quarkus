@@ -53,7 +53,7 @@ public class KnativeProducerTest {
     @Test
     void sendToChannelWithProducerTemplate() {
         given()
-                .get("/channel/send/HelloWorld")
+                .get("/send/channel/HelloWorld")
                 .then()
                 .statusCode(200);
 
@@ -69,7 +69,7 @@ public class KnativeProducerTest {
     @Test
     void sendToBrokerWithProducerTemplate() {
         given()
-                .get("/event/send/HelloWorld")
+                .get("/send/event/HelloWorld")
                 .then()
                 .statusCode(200);
 

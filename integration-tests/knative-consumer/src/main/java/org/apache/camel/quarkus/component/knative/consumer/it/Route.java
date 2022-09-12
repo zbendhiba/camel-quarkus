@@ -11,5 +11,8 @@ public class Route extends RouteBuilder {
         from("knative:event/event-test")
                 .to("seda:queue-event");
 
+        from("knative:endpoint/endpoint-test")
+                .to("seda:queue-endpoint");
+
     }
 }

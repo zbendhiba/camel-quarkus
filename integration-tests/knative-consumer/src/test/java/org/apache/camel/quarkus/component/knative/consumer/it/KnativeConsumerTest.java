@@ -49,7 +49,7 @@ public class KnativeConsumerTest {
     }
 
     @Test
-    void consumeEvents() {
+    void consumeEventsFromChannel() {
         // consume from channel
         given()
                 .contentType(MediaType.TEXT_PLAIN)
@@ -72,6 +72,10 @@ public class KnativeConsumerTest {
             return body != null && body.contains("Hello World - Testing Knative Channel Camel consumer");
         });
 
+    }
+
+    @Test
+    void consumeFromBroker() {
         given()
                 .contentType(MediaType.TEXT_PLAIN)
                 .accept(MediaType.TEXT_PLAIN)
@@ -92,6 +96,30 @@ public class KnativeConsumerTest {
                     .then()
                     .extract().body().asString();
             return body != null && body.contains("Hello World - Testing Knative Broker Camel consumer");
+        });
+    }
+
+    @Test
+    void consumeFromCamelService() {
+        given()
+                .contentType(MediaType.TEXT_PLAIN)
+                .accept(MediaType.TEXT_PLAIN)
+                .header("ce-specversion", CloudEvents.v1_0.version())
+                .header("ce-id", UUID.randomUUID())
+                .header("ce-time", "2018-04-05T17:31:00Z")
+                .header("ce-source", "camel-endpoint-test")
+                .body("Hello World - Testing Knative Services Camel consumer")
+                .when()
+                .post("/my-endpoint")
+                .then()
+                .statusCode(200);
+
+        Awaitility.await().pollInterval(1, TimeUnit.SECONDS).atMost(10, TimeUnit.SECONDS).until(() -> {
+            final String body = given()
+                    .get("/knative-consumer/read/queue-endpoint")
+                    .then()
+                    .extract().body().asString();
+            return body != null && body.contains("Hello World - Testing Knative Services Camel consumer");
         });
     }
 

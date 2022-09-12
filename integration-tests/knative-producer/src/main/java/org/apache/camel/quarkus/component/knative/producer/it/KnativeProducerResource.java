@@ -66,16 +66,9 @@ public class KnativeProducerResource {
     }
 
     @GET
-    @Path("/channel/send/{msg}")
-    public Response sendMessageToChannel(@PathParam("msg") String message) {
-        producerTemplate.sendBody("direct:channel", message);
-        return Response.ok().build();
-    }
-
-    @GET
-    @Path("/event/send/{msg}")
-    public Response sendMessageToBroker(@PathParam("msg") String message) throws IOException {
-        producerTemplate.sendBody("direct:event", message);
+    @Path("/send/{type}/{msg}")
+    public Response sendMessageToChannel(@PathParam("type") String type, @PathParam("msg") String message) {
+        producerTemplate.sendBody(String.format("direct:%s", type), message);
         return Response.ok().build();
     }
 
@@ -83,7 +76,7 @@ public class KnativeProducerResource {
     @GET
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.TEXT_PLAIN)
-    public boolean validMessage(@PathParam("name") String endpointName) throws Exception {
+    public boolean validReceivedMessage(@PathParam("name") String endpointName) throws Exception {
         MockEndpoint mockEndpoint = context.getEndpoint(String.format("mock:%s", endpointName), MockEndpoint.class);
         Exchange result = mockEndpoint.getReceivedExchanges().stream()
                 .findAny().get();
