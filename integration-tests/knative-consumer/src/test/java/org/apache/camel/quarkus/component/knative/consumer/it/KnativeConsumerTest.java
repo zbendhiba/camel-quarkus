@@ -16,26 +16,30 @@
  */
 package org.apache.camel.quarkus.component.knative.consumer.it;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.ws.rs.core.MediaType;
 
-import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
+import org.apache.camel.ServiceStatus;
 import org.apache.camel.component.knative.http.KnativeHttpConsumerFactory;
+import org.awaitility.Awaitility;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
+import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @QuarkusTest
-@TestHTTPEndpoint(KnativeConsumerResource.class)
 public class KnativeConsumerTest {
     @Test
     void inspect() {
-        JsonPath p = RestAssured.given()
+        JsonPath p = given()
                 .contentType(MediaType.TEXT_PLAIN)
                 .accept(MediaType.APPLICATION_JSON)
-                .get("/inspect")
+                .get("/knative-consumer/inspect")
                 .then()
                 .statusCode(200)
                 .extract()
@@ -44,4 +48,45 @@ public class KnativeConsumerTest {
 
         assertEquals(KnativeHttpConsumerFactory.class.getName(), p.getString("consumer-factory"));
     }
+
+    @Test
+    void consumeEvents() {
+        // consume from channel
+        String cloudEvent = "{\"specversion\": \"1.0\", \"type\": \"org.camel.event\", \"id\": \"123456\", \"data\": \"Hello World Channel\", \"source\": \"camel\"}";
+        given()
+                .contentType(MediaType.TEXT_PLAIN)
+                .accept(MediaType.APPLICATION_JSON)
+                .body(cloudEvent)
+                .post("/channel")
+                .then()
+                .statusCode(200);
+
+        Awaitility.await().pollInterval(1, TimeUnit.SECONDS).atMost(10, TimeUnit.SECONDS).until(() -> {
+            final String body = given()
+                    .get("/knative-consumer/read/queue-channel")
+                    .then()
+                    .extract().body().asString();
+            return body != null && body.contains("Hello World Channel");
+        });
+
+        cloudEvent = "{\"specversion\": \"1.0\", \"type\": \"org.apache.camel.event\", \"id\": \"123456\", \"data\": \"Hello World Broker\", \"source\": \"camel\"}";
+        given()
+                .contentType(MediaType.TEXT_PLAIN)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("ce-type", "broker-test")
+                .body(cloudEvent)
+                .when()
+                .post("/event")
+                .then()
+                .statusCode(200);
+
+        Awaitility.await().pollInterval(1, TimeUnit.SECONDS).atMost(10, TimeUnit.SECONDS).until(() -> {
+            final String body = given()
+                    .get("/knative-consumer/read/queue-broker")
+                    .then()
+                    .extract().body().asString();
+            return body != null && body.contains("Hello World Broker");
+        });
+    }
+
 }

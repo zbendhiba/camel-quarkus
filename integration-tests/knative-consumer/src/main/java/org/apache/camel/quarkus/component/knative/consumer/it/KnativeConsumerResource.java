@@ -22,17 +22,22 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.camel.CamelContext;
+import org.apache.camel.ConsumerTemplate;
 import org.apache.camel.component.knative.KnativeComponent;
 
-@Path("/test")
+@Path("/knative-consumer")
 @ApplicationScoped
 public class KnativeConsumerResource {
     @Inject
     CamelContext context;
+
+    @Inject
+    ConsumerTemplate consumerTemplate;
 
     @GET
     @Path("/inspect")
@@ -50,4 +55,11 @@ public class KnativeConsumerResource {
 
         return builder.build();
     }
+
+    @GET
+    @Path("read/{queueName}")
+    public String readReceivedMessages(@PathParam("queueName") String queueName) {
+        return consumerTemplate.receiveBody(String.format("seda:%s", queueName), 1000, String.class);
+    }
+
 }
