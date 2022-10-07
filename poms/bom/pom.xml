@@ -4603,12 +4603,12 @@
             <dependency>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-platform-http</artifactId>
-                <version>${camel.version}</version>
+                <version>${platform-http-version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-platform-http-vertx</artifactId>
-                <version>${camel.version}</version>
+                <version>${platform-http-version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>jakarta.activation</groupId>
