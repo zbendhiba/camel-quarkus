@@ -26,9 +26,9 @@
         <relativePath>../../poms/build-parent-it/pom.xml</relativePath>
     </parent>
 
-    <artifactId>camel-quarkus-integration-test-platform-http</artifactId>
-    <name>Camel Quarkus :: Integration Tests :: Platform HTTP</name>
-    <description>Integration tests for Camel Quarkus platform-http extension</description>
+    <artifactId>camel-quarkus-integration-test-platform-http-proxy</artifactId>
+    <name>Camel Quarkus :: Integration Tests :: Platform HTTP Proxy</name>
+    <description>Integration tests for Camel Quarkus platform-http extension - Proxy</description>
 
     <dependencies>
         <dependency>
@@ -38,6 +38,10 @@
         <dependency>
             <groupId>org.apache.camel.quarkus</groupId>
             <artifactId>camel-quarkus-platform-http</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel.quarkus</groupId>
+            <artifactId>camel-quarkus-http</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.camel.quarkus</groupId>

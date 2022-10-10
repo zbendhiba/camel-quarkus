@@ -1,6 +1,7 @@
-package org.apache.camel.quarkus.component.http.server.it;
+package org.apache.camel.quarkus.component.platform.http.proxy.it;
 
 import io.quarkus.test.junit.QuarkusTest;
+import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 
@@ -12,9 +13,12 @@ public class ProxyTest {
 
     @Test
     void testProxy() {
+
+        final var proxyUrl = "http://localhost:" + RestAssured.port;
+        System.out.println("proxyUrl :: " + proxyUrl);
         given()
                 .body("hello")
-                .proxy("http://localhost:8081")
+                .proxy(proxyUrl)
                 .contentType(ContentType.HTML)
                 .when().get("http://neverssl.com:80")
                 .then()

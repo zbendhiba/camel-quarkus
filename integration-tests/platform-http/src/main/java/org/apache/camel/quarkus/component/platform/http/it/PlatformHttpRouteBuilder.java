@@ -36,9 +36,9 @@ import org.apache.camel.component.webhook.WebhookConfiguration;
 import org.apache.camel.model.rest.RestBindingMode;
 import org.apache.camel.spi.Registry;
 
-public class PlatformHttpRouteBuilder /*extends RouteBuilder */{
-    //@SuppressWarnings("unchecked")
-   /* @Override
+public class PlatformHttpRouteBuilder extends RouteBuilder {
+    @SuppressWarnings("unchecked")
+    @Override
     public void configure() {
         restConfiguration().component("platform-http").bindingMode(RestBindingMode.off)
                 // and output using pretty print
@@ -170,5 +170,5 @@ public class PlatformHttpRouteBuilder /*extends RouteBuilder */{
                     Principal principal = securityIdentity.getPrincipal();
                     message.setBody(principal.getName() + ":" + securityIdentity.getRoles().iterator().next());
                 });
-    }*/
+    }
 }
