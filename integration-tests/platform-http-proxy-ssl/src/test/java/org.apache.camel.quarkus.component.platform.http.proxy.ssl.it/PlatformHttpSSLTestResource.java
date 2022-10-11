@@ -14,15 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package test.it;
+package org.apache.camel.quarkus.component.platform.http.proxy.ssl.it;
 
 import java.util.Map;
 
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import org.apache.camel.quarkus.test.wiremock.WireMockTestResourceLifecycleManager;
 
-public class PlatformHttpSSLTestResource extends PlatformHttpTestResource {
+public class PlatformHttpSSLTestResource extends WireMockTestResourceLifecycleManager {
+    private static final String PLATFORM_ORIGIN_HOST = "PLATFORM_ORIGIN_HOST";
+    private static final String PLATFORM_ORIGIN_PORT = "PLATFORM_ORIGIN_PORT";
 
+    @Override
+    protected String getRecordTargetBaseUrl() {
+        return "/";
+    }
+
+    @Override
+    protected boolean isMockingEnabled() {
+        return !envVarsPresent(PLATFORM_ORIGIN_HOST, PLATFORM_ORIGIN_PORT);
+    }
 
     @Override
     public Map<String, String> start() {
@@ -30,7 +41,6 @@ public class PlatformHttpSSLTestResource extends PlatformHttpTestResource {
         if (options.containsKey("wiremock.url.ssl")) {
             String wiremockUrl = options.get("wiremock.url.ssl");
             options.put("platform.origin.url", wiremockUrl);
-            options.put("platform.origin.ssl.enabled", "true");
         }
         return options;
     }
@@ -42,7 +52,7 @@ public class PlatformHttpSSLTestResource extends PlatformHttpTestResource {
         // Either a path to a file or a resource on the classpath
         config.keystorePath("ssl/keystore.jks");
         // The password used to access the keystore. Defaults to "password" if omitted
-        config.keystorePassword("changeit") ;
+        config.keystorePassword("changeit");
         // The password used to access individual keys in the keystore. Defaults to "password" if omitted
         config.keyManagerPassword("changeit");
     }

@@ -1,4 +1,4 @@
-package test.it;
+package org.apache.camel.quarkus.component.platform.http.proxy.ssl.it;
 
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
@@ -12,16 +12,16 @@ import static org.hamcrest.Matchers.equalTo;
 @QuarkusTest
 @QuarkusTestResource(PlatformHttpSSLTestResource.class)
 public class ProxySslTest {
-    @Test
+    /* @Test
     void testProxy() {
-
+    
         final var proxyUrl = "http://localhost:" + RestAssured.port;
         System.out.println("proxyUrl :: " + proxyUrl);
-
+    
         String url = given()
                 .get("/platform-http-proxy")
                 .body().asString();
-
+    
         System.out.println("URL is :: " + url);
         given()
                 .proxy(proxyUrl)
@@ -30,7 +30,7 @@ public class ProxySslTest {
                 .then()
                 .statusCode(200)
                 .body(equalTo("{\"message\": \"Hello World!\"}"));
-
+    
         given()
                 .body("hello")
                 .proxy(proxyUrl)
@@ -39,17 +39,15 @@ public class ProxySslTest {
                 .then()
                 .statusCode(200)
                 .body(equalTo("{\"message\": \"Hello World!\"}"));
-    }
+    }*/
 
     @Test
-    void test(){
+    void test() {
         final var proxyUrl = "http://localhost:" + RestAssured.port;
         System.out.println("proxyUrl :: " + proxyUrl);
 
-
-
-           RestAssured.useRelaxedHTTPSValidation();
-            RestAssured.config().getSSLConfig().with().keyStore("ssl/keystore.jks", "changeit");
+        RestAssured.useRelaxedHTTPSValidation();
+        RestAssured.config().getSSLConfig().with().keyStore("ssl/keystore.jks", "changeit");
 
         String url = given()
                 .get("/platform-http-proxy")
