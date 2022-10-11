@@ -31,10 +31,7 @@
     <description>Integration tests for Camel Quarkus platform-http extension - Proxy</description>
 
     <dependencies>
-        <dependency>
-            <groupId>org.apache.camel.quarkus</groupId>
-            <artifactId>camel-quarkus-direct</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>org.apache.camel.quarkus</groupId>
             <artifactId>camel-quarkus-platform-http</artifactId>
@@ -44,21 +41,11 @@
             <artifactId>camel-quarkus-http</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.camel.quarkus</groupId>
-            <artifactId>camel-quarkus-rest</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel.quarkus</groupId>
-            <artifactId>camel-quarkus-log</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel.quarkus</groupId>
-            <artifactId>camel-quarkus-support-webhook</artifactId>
-        </dependency>
-        <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-elytron-security-properties-file</artifactId>
+            <artifactId>quarkus-resteasy</artifactId>
         </dependency>
+
+
 
         <!-- test dependencies -->
         <dependency>
@@ -71,9 +58,10 @@
             <artifactId>rest-assured</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- dependencies needed to mock origin server  -->
         <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
+            <groupId>org.apache.camel.quarkus</groupId>
+            <artifactId>camel-quarkus-integration-wiremock-support</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

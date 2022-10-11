@@ -1,9 +1,15 @@
 package org.apache.camel.quarkus.component.platform.http.proxy.it;
 
+import javax.enterprise.context.ApplicationScoped;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
+@ApplicationScoped
 public class Routes extends RouteBuilder {
+
+
 
     @Override
     public void configure() throws Exception {
