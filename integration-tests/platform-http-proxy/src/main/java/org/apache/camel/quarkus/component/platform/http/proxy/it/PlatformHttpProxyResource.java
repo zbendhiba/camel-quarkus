@@ -14,7 +14,7 @@ public class PlatformHttpProxyResource {
     String url;
 
     @GET
-    public String getUrl(){
+    public String getUrl() {
         return url;
     }
 
