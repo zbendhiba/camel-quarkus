@@ -9,7 +9,6 @@ import org.apache.camel.component.knative.KnativeComponent;
 import org.apache.camel.component.knative.spi.KnativeResource;
 import org.apache.camel.quarkus.component.knative.sink.binding.KnativeSinkBindingConfig;
 import org.apache.camel.quarkus.component.knative.sink.binding.KnativeSinkBindingRecorder;
-import org.apache.camel.quarkus.core.deployment.spi.CamelBeanBuildItem;
 import org.apache.camel.quarkus.core.deployment.spi.CamelContextBuildItem;
 import org.apache.camel.quarkus.core.deployment.spi.CamelRuntimeBeanBuildItem;
 

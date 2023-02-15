@@ -12,7 +12,7 @@ import org.eclipse.microprofile.config.ConfigProvider;
 @ConfigRoot(name = "camel.knative.sink.binding")
 public class KnativeSinkBindingConfig {
     /**
-     * Whether a Knative Sink  should be automatically configured
+     * Whether a Knative Sink should be automatically configured
      * according to 'quarkus.camel.knative.sink.binding.*' configurations.
      */
     @ConfigItem(defaultValue = "false")
@@ -34,7 +34,7 @@ public class KnativeSinkBindingConfig {
      * Cloud Events API version
      */
     @ConfigItem
-    public  Optional<String> apiVersion;
+    public Optional<String> apiVersion;
 
     /**
      * Sink URL

@@ -1,13 +1,16 @@
 package org.apache.camel.quarkus.component.knative.sink.binding;
 
 import io.quarkus.runtime.RuntimeValue;
+import io.quarkus.runtime.annotations.Recorder;
 import org.apache.camel.CamelContext;
 import org.apache.camel.component.knative.spi.Knative;
 import org.apache.camel.component.knative.spi.KnativeResource;
 
+@Recorder
 public class KnativeSinkBindingRecorder {
 
-    public RuntimeValue<KnativeResource> createKnativeSinkBindingResource(CamelContext camelContext, KnativeSinkBindingConfig config) {
+    public RuntimeValue<KnativeResource> createKnativeSinkBindingResource(CamelContext camelContext,
+            KnativeSinkBindingConfig config) {
         // create a synthetic service definition to target the Knative Sink url
         config.sinkUrl.ifPresent(sinkUrl -> {
             KnativeResource resource = new KnativeResource();

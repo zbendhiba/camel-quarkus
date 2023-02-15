@@ -43,3 +43,52 @@ Or add the coordinates to your existing project:
 ifeval::[{doc-show-user-guide-link} == true]
 Check the xref:user-guide/index.adoc[User guide] for more information about writing Camel Quarkus applications.
 endif::[]
+
+[id="extensions-knative-additional-camel-quarkus-configuration"]
+== Additional Camel Quarkus configuration
+
+[width="100%",cols="80,5,15",options="header"]
+|===
+| Configuration property | Type | Default
+
+
+|icon:lock[title=Fixed at build time] [[quarkus.camel.knative.sink.binding.enabled]]`link:#quarkus.camel.knative.sink.binding.enabled[quarkus.camel.knative.sink.binding.enabled]`
+
+Whether a Knative Sink should be automatically configured according to 'quarkus.camel.knative.sink.binding.++*++' configurations.
+| `boolean`
+| `false`
+
+|icon:lock[title=Fixed at build time] [[quarkus.camel.knative.sink.binding.name]]`link:#quarkus.camel.knative.sink.binding.name[quarkus.camel.knative.sink.binding.name]`
+
+Name of the Knative resource
+| `string`
+| required icon:exclamation-circle[title=Configuration property is required]
+
+|icon:lock[title=Fixed at build time] [[quarkus.camel.knative.sink.binding.type]]`link:#quarkus.camel.knative.sink.binding.type[quarkus.camel.knative.sink.binding.type]`
+
+Type of the Knative resource
+| `org.apache.camel.component.knative.spi.Knative.Type`
+| required icon:exclamation-circle[title=Configuration property is required]
+
+|icon:lock[title=Fixed at build time] [[quarkus.camel.knative.sink.binding.api-version]]`link:#quarkus.camel.knative.sink.binding.api-version[quarkus.camel.knative.sink.binding.api-version]`
+
+Cloud Events API version
+| `string`
+| 
+
+|icon:lock[title=Fixed at build time] [[quarkus.camel.knative.sink.binding.sink-url]]`link:#quarkus.camel.knative.sink.binding.sink-url[quarkus.camel.knative.sink.binding.sink-url]`
+
+Sink URL
+| `string`
+| 
+
+|icon:lock[title=Fixed at build time] [[quarkus.camel.knative.sink.binding.ce-override]]`link:#quarkus.camel.knative.sink.binding.ce-override[quarkus.camel.knative.sink.binding.ce-override]`
+
+The list of key/value used override Cloud Events configuration, defaults to empty map.
+| ``Map<String,String>``
+| 
+|===
+
+[.configuration-legend]
+{doc-link-icon-lock}[title=Fixed at build time] Configuration property fixed at build time. All other configuration properties are overridable at runtime.
+
