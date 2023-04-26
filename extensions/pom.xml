@@ -190,7 +190,7 @@
         <module>openstack</module>
         <module>opentelemetry</module>
         <!--<module>opentracing</module> https://github.com/apache/camel-quarkus/issues/4477 -->
-        <!--<module>optaplanner</module> https://github.com/apache/camel-quarkus/issues/4463 -->
+        <module>optaplanner</module>
         <module>paho</module>
         <module>paho-mqtt5</module>
         <module>pdf</module>

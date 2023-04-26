@@ -176,7 +176,7 @@
         <module>openstack</module>
         <module>opentelemetry</module>
         <!--<module>opentracing</module>-->
-        <!--<module>optaplanner</module>-->
+        <module>optaplanner</module>
         <module>paho</module>
         <module>paho-mqtt5</module>
         <module>pdf</module>
