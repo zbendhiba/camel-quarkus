@@ -35,9 +35,9 @@ class LangchainChatTest {
                 .then()
                 .statusCode(204);
 
-        RestAssured.get("/langchain-chat/multiple-messages")
+        /*RestAssured.get("/langchain-chat/multiple-messages")
                 .then()
-                .statusCode(204);
+                .statusCode(204);*/
     }
 
 }

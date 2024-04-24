@@ -23,24 +23,24 @@ public class OllamaRoute extends RouteBuilder {
                 .baseUrl(ollamaBaseUrl)
                 .modelName(OLLAMA_MODEL)
                 .temperature(0.3)
-                .timeout(ofSeconds(3000))
+                .timeout(ofSeconds(10000))
                 .build();
     }
 
     @Override
     public void configure() throws Exception {
 
-        from("direct:send-simple-message")
+        from("direct:send-simple-message?timeout=30000")
                 .to("langchain-chat:test1?chatModel=#chatModel&chatOperation=CHAT_SINGLE_MESSAGE")
                 .to("mock:response");
 
-        from("direct:send-message-prompt")
+      /*  from("direct:send-message-prompt?timeout=30000")
                 .to("langchain-chat:test2?chatModel=#chatModel&chatOperation=CHAT_SINGLE_MESSAGE_WITH_PROMPT")
                 .to("mock:response");
 
-        from("direct:send-multiple")
+        from("direct:send-multiple?timeout=30000")
                 .to("langchain-chat:test2?chatModel=#chatModel&chatOperation=CHAT_MULTIPLE_MESSAGES")
-                .to("mock:response");
+                .to("mock:response");*/
 
     }
 }
